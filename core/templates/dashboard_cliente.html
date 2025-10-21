@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Cliente — MiTurno</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow-md border-b border-gray-200">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+        <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#" class="text-grayMedium hover:text-primary transition">Inicio</a>
+        <a href="#" class="text-grayMedium hover:text-primary transition">Perfil</a>
+        <a href="/" class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">Cerrar sesión</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="flex-1 p-8">
+    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">Bienvenido, {{ user.username }}</h1>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-dark mb-2">Próxima cita</h2>
+        <p class="text-grayMedium">Aún no tienes citas programadas.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-dark mb-2">Historial</h2>
+        <p class="text-grayMedium">Consulta tus servicios anteriores.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-dark mb-2">Perfil</h2>
+        <p class="text-grayMedium">Teléfono: {{ user.cliente.telefono|default:'No registrado' }}</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-grayMedium py-4 text-sm">
+    © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+  </footer>
+
+</body>
+</html>

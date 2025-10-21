@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Barbería — MiTurno</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow-md border-b border-gray-200">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+        <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#" class="text-grayMedium hover:text-primary transition">Dashboard</a>
+        <a href="#" class="text-grayMedium hover:text-primary transition">Servicios</a>
+        <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
+        <a href="/" class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">Cerrar sesión</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="flex-1 p-8">
+    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">
+      Bienvenido, {{ user.empresa.nombre_negocio|default:"Barbería" }}
+    </h1>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+        <p class="text-sm text-grayMedium">Citas del día</p>
+        <h2 class="text-2xl font-bold text-primary mt-2">0</h2>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+        <p class="text-sm text-grayMedium">Servicios activos</p>
+        <h2 class="text-2xl font-bold text-primary mt-2">0</h2>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+        <p class="text-sm text-grayMedium">Clientes registrados</p>
+        <h2 class="text-2xl font-bold text-primary mt-2">0</h2>
+      </div>
+    </section>
+
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <table class="w-full text-left text-grayMedium">
+        <thead class="bg-primary text-white">
+          <tr>
+            <th class="py-3 px-4">Cliente</th>
+            <th class="py-3 px-4">Servicio</th>
+            <th class="py-3 px-4">Hora</th>
+            <th class="py-3 px-4">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-200">
+            <td class="py-3 px-4">Sin registros</td>
+            <td class="py-3 px-4">-</td>
+            <td class="py-3 px-4">-</td>
+            <td class="py-3 px-4">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-grayMedium py-4 text-sm">
+    © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+  </footer>
+
+</body>
+</html>

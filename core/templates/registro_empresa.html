@@ -1,0 +1,52 @@
+{% load static %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro Empresa — MiTurno</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
+
+  <div class="bg-white shadow-lg p-8 rounded-2xl w-full max-w-md border border-gray-200">
+    <h2 class="text-2xl font-poppins font-bold text-dark text-center mb-6">
+      Registrar Barbería o Empresa
+    </h2>
+
+    <form method="POST" class="space-y-4">
+      {% csrf_token %}
+      <div class="space-y-3">
+        {{ form.username.label_tag }}
+        {{ form.username|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" }}
+
+        {{ form.email.label_tag }}
+        {{ form.email|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" }}
+
+        {{ form.nombre_negocio.label_tag }}
+        {{ form.nombre_negocio|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" }}
+
+        {{ form.direccion.label_tag }}
+        {{ form.direccion|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" }}
+
+        {{ form.telefono.label_tag }}
+        {{ form.telefono|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" }}
+
+        {{ form.password.label_tag }}
+        {{ form.password|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" }}
+      </div>
+
+      <button type="submit"
+        class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryLight transition font-semibold">
+        Registrar Empresa
+      </button>
+    </form>
+
+    <p class="text-center text-grayMedium mt-6">
+      ¿Ya tienes cuenta?
+      <a href="{% url 'login_empresa' %}" class="text-primary font-medium hover:underline">Inicia sesión</a>
+    </p>
+  </div>
+
+</body>
+</html>
