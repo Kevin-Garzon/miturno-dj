@@ -1,11 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Panel Cliente — MiTurno</title>
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
 </head>
+
 <body class="bg-graySoft font-inter min-h-screen flex flex-col">
 
   <!-- Navbar -->
@@ -18,7 +20,10 @@
       <nav class="flex items-center gap-6">
         <a href="#" class="text-grayMedium hover:text-primary transition">Inicio</a>
         <a href="#" class="text-grayMedium hover:text-primary transition">Perfil</a>
-        <a href="/" class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">Cerrar sesión</a>
+        <a href="{% url 'logout' %}"
+          class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
+          Cerrar sesión
+        </a>
       </nav>
     </div>
   </header>
@@ -49,4 +54,5 @@
   </footer>
 
 </body>
+
 </html>

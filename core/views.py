@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .forms import RegistroClienteForm, RegistroEmpresaForm
 from .models import Cliente, Empresa
+from django.contrib.auth.decorators import login_required
+
 
 # Landing
 def landing(request):
@@ -70,8 +72,16 @@ def login_empresa(request):
 
 
 # Dashboards básicos
+@login_required
 def dashboard_cliente(request):
     return render(request, 'dashboard_cliente.html')
 
+@login_required
 def dashboard_empresa(request):
     return render(request, 'dashboard_empresa.html')
+
+
+# Logout
+def logout_view(request):
+    logout(request)
+    return redirect('landing')
