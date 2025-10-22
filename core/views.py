@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .forms import RegistroClienteForm, RegistroEmpresaForm
-from .models import Cliente, Empresa
+from .forms import RegistroClienteForm, EmpresaForm, ServicioForm
+from .models import Cliente, Empresa, Servicio
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 # Landing
@@ -27,24 +28,6 @@ def registro_cliente(request):
         form = RegistroClienteForm()
     return render(request, 'registro_cliente.html', {'form': form})
 
-
-# Registro Empresa
-def registro_empresa(request):
-    if request.method == 'POST':
-        form = RegistroEmpresaForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            email = form.cleaned_data['email']
-            nombre_negocio = form.cleaned_data['nombre_negocio']
-            direccion = form.cleaned_data['direccion']
-            telefono = form.cleaned_data['telefono']
-            user = User.objects.create_user(username=username, password=password, email=email)
-            Empresa.objects.create(user=user, nombre_negocio=nombre_negocio, direccion=direccion, telefono=telefono)
-            return redirect('login_empresa')
-    else:
-        form = RegistroEmpresaForm()
-    return render(request, 'registro_empresa.html', {'form': form})
 
 
 # Login Cliente
@@ -85,3 +68,50 @@ def dashboard_empresa(request):
 def logout_view(request):
     logout(request)
     return redirect('landing')
+
+
+@login_required
+def editar_empresa(request):
+    try:
+        empresa = request.user.empresa  # accedemos al registro vinculado al usuario
+    except Empresa.DoesNotExist:
+        messages.error(request, "No se encontró la información de la empresa.")
+        return redirect('dashboard_empresa')
+
+    if request.method == 'POST':
+        form = EmpresaForm(request.POST, instance=empresa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Información actualizada correctamente.")
+            return redirect('editar_empresa')
+    else:
+        form = EmpresaForm(instance=empresa)
+
+    return render(request, 'empresa/editar_empresa.html', {'form': form})
+
+@login_required
+def listar_servicios(request):
+    # Obtener los servicios de la empresa logueada
+    empresa = request.user.empresa
+    servicios = Servicio.objects.filter(empresa=empresa).order_by('-fecha_creacion')
+
+    return render(request, 'empresa/servicios/listar_servicios.html', {
+        'servicios': servicios
+    })
+
+@login_required
+def crear_servicio(request):
+    empresa = request.user.empresa
+
+    if request.method == 'POST':
+        form = ServicioForm(request.POST)
+        if form.is_valid():
+            servicio = form.save(commit=False)
+            servicio.empresa = empresa
+            servicio.save()
+            messages.success(request, 'El servicio fue creado exitosamente.')
+            return redirect('listar_servicios')
+    else:
+        form = ServicioForm()
+
+    return render(request, 'empresa/servicios/crear_servicio.html', {'form': form})

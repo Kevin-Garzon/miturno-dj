@@ -5,24 +5,137 @@
   <meta charset="UTF-8">
   <title>MiTurno — Gestión de Turnos</title>
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
-</head>
-<body class="font-inter bg-graySoft min-h-screen flex items-center justify-center">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
 
-  <div class="bg-white shadow-xl rounded-2xl p-10 text-center max-w-lg border border-gray-200">
-    <h1 class="text-4xl font-poppins font-bold text-dark mb-4">
-      Bienvenido a <span class="text-primary">MiTurno</span>
-    </h1>
-    <p class="text-grayMedium mb-6">
-      Reserva tus citas y gestiona tu negocio de belleza de forma sencilla, moderna y rápida.
-    </p>
 
-    <div class="flex justify-center gap-4">
-      <a href="{% url 'registro_cliente' %}"
-         class="bg-primary text-white px-6 py-2 rounded-xl hover:bg-primaryLight transition">Soy Cliente</a>
-      <a href="{% url 'registro_empresa' %}"
-         class="bg-dark text-white px-6 py-2 rounded-xl hover:bg-gray-800 transition">Soy Barbería</a>
+<body class="bg-graySoft font-inter text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <img src="{% static 'img/logo.png' %}" alt="MiTurno Logo" class="w-9 h-9">
+        <h1 class="text-2xl font-poppins font-bold text-primary">MiTurno</h1>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#features" class="hover:text-primary transition font-medium">Funciones</a>
+        <a href="#benefits" class="hover:text-primary transition font-medium">Beneficios</a>
+      </nav>
     </div>
-  </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="bg-white py-20">
+    <div class="max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 px-6">
+      
+      <!-- Texto -->
+      <div class="lg:w-1/2 text-center lg:text-left">
+        <h2 class="text-5xl font-bold font-poppins mb-6 leading-tight text-dark">
+          Gestiona los turnos de tu <span class="text-primary">barbería</span> de forma moderna y eficiente
+        </h2>
+        <p class="text-grayMedium mb-8 text-lg">
+          Con <strong>MiTurno</strong> podrás optimizar la atención a tus clientes, automatizar las reservas
+          y mantener tu agenda organizada desde cualquier dispositivo. Diseñado para ofrecerte simplicidad y estilo.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+          <a href="{% url 'registro_cliente' %}" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primaryLight transition shadow-md">
+            Soy Cliente
+          </a>
+          <a href="{% url 'login_empresa' %}" class="bg-dark text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition shadow-md">
+            Soy Barbería
+          </a>
+        </div>
+      </div>
+
+      <!-- Imagen -->
+      <div class="lg:w-1/2 flex justify-center">
+        <img src="{% static 'img/img.jpg' %}" alt="Barbería moderna" class="rounded-2xl shadow-xl w-full max-w-md">
+      </div>
+    </div>
+  </section>
+
+  <!-- Funcionalidades -->
+  <section id="features" class="py-20 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <h3 class="text-3xl font-poppins font-bold mb-12 text-dark">¿Qué puedes hacer con MiTurno?</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div class="bg-white p-8 rounded-2xl shadow hover:shadow-xl transition">
+          <div class="text-primary text-5xl mb-4">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Reservar citas fácilmente</h4>
+          <p class="text-grayMedium">Tus clientes podrán agendar turnos en segundos, sin llamadas ni esperas innecesarias.</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow hover:shadow-xl transition">
+          <div class="text-primary text-5xl mb-4">
+            <i class="fa-regular fa-clock"></i>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Controlar horarios</h4>
+          <p class="text-grayMedium">Configura tus días y horas disponibles, y deja que el sistema gestione el resto.</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow hover:shadow-xl transition">
+          <div class="text-primary text-5xl mb-4">
+            <i class="fa-solid fa-scissors"></i>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Organizar tus servicios</h4>
+          <p class="text-grayMedium">Crea, edita y muestra los servicios disponibles con su duración y precios.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección azul destacada -->
+  <section class="bg-primary text-white py-24">
+    <div class="max-w-5xl mx-auto text-center px-6">
+      <h3 class="text-3xl font-bold font-poppins mb-6">Simplifica tu día a día con una herramienta moderna</h3>
+      <p class="text-lg text-white/90 mb-10">
+        MiTurno te permite concentrarte en lo importante: atender a tus clientes y hacer crecer tu negocio.
+        Olvídate del papel, las llamadas y los olvidos: todo en una sola plataforma.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="{% url 'registro_cliente' %}" class="bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition shadow">
+          Empezar ahora
+        </a>
+        <a href="#features" class="border border-white text-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary transition shadow">
+          Conocer más
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beneficios -->
+  <section id="benefits" class="py-20 bg-white">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <h3 class="text-3xl font-poppins font-bold mb-12 text-dark">Beneficios para tu negocio</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="p-8 bg-gray-50 rounded-xl shadow hover:shadow-xl transition">
+          <i class="fa-solid fa-stopwatch text-primary text-4xl mb-4"></i>
+          <h4 class="text-xl font-semibold mb-2 text-primary">Ahorro de tiempo</h4>
+          <p class="text-grayMedium">Reduce el tiempo que dedicas a organizar citas manualmente y mejora tu productividad.</p>
+        </div>
+        <div class="p-8 bg-gray-50 rounded-xl shadow hover:shadow-xl transition">
+          <i class="fa-solid fa-chart-line text-primary text-4xl mb-4"></i>
+          <h4 class="text-xl font-semibold mb-2 text-primary">Mayor organización</h4>
+          <p class="text-grayMedium">Consulta tu agenda diaria, semanal o mensual con facilidad y evita citas duplicadas.</p>
+        </div>
+        <div class="p-8 bg-gray-50 rounded-xl shadow hover:shadow-xl transition">
+          <i class="fa-solid fa-comments text-primary text-4xl mb-4"></i>
+          <h4 class="text-xl font-semibold mb-2 text-primary">Comunicación fluida</h4>
+          <p class="text-grayMedium">Mantén informados a tus clientes con recordatorios automáticos y actualizaciones de su cita.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white text-center py-6 mt-10">
+    <p class="text-sm text-gray-300">
+      © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados.
+    </p>
+  </footer>
 
 </body>
 </html>

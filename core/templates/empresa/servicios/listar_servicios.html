@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Servicios — MiTurno</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-white shadow-md border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+                <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+            </div>
+            <nav class="flex items-center gap-6">
+                <a href="{% url 'dashboard_empresa' %}"
+                    class="text-grayMedium hover:text-primary transition">Dashboard</a>
+                <a href="{% url 'listar_servicios' %}" class="text-primary font-semibold transition">Servicios</a>
+                <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
+                <a href="{% url 'editar_empresa' %}"
+                    class="text-grayMedium hover:text-primary transition">Configuración</a>
+                <a href="{% url 'logout' %}"
+                    class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
+                    Cerrar sesión
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="flex-1 p-8 max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-poppins font-semibold text-dark">Servicios</h1>
+            <a href="{% url 'crear_servicio' %}"
+                class="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primaryLight transition shadow-md">
+                <i class="fa-solid fa-plus mr-2"></i> Nuevo servicio
+            </a>
+
+        </div>
+
+        {% if servicios %}
+        <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <table class="w-full text-left text-grayMedium">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th class="py-3 px-4">Nombre</th>
+                        <th class="py-3 px-4">Duración</th>
+                        <th class="py-3 px-4">Precio</th>
+                        <th class="py-3 px-4">Estado</th>
+                        <th class="py-3 px-4 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for servicio in servicios %}
+                    <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 font-medium text-dark">{{ servicio.nombre }}</td>
+                        <td class="py-3 px-4">{{ servicio.duracion }} min</td>
+                        <td class="py-3 px-4">${{ servicio.precio }}</td>
+                        <td class="py-3 px-4">
+                            {% if servicio.activo %}
+                            <span class="text-green-600 font-medium">Activo</span>
+                            {% else %}
+                            <span class="text-red-500 font-medium">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <a href="#" class="text-blue-600 hover:text-blue-800 mr-4">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a href="#" class="text-red-500 hover:text-red-700">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-grayMedium mt-10">Aún no hay servicios registrados.</p>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-grayMedium py-4 text-sm mt-10">
+        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+    </footer>
+</body>
+
+</html>
