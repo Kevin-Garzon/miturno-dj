@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Servicio — MiTurno</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+    <main class="flex-1 flex items-center justify-center">
+        <div class="bg-white shadow p-10 rounded-xl border border-gray-200 text-center max-w-md">
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
+            <h1 class="text-2xl font-bold mb-4">¿Eliminar servicio?</h1>
+            <p class="text-grayMedium mb-6">
+                Estás a punto de eliminar el servicio <strong>{{ servicio.nombre }}</strong>.
+                Esta acción no se puede deshacer.
+            </p>
+
+            <form method="POST" class="flex justify-center gap-4">
+                {% csrf_token %}
+                <a href="{% url 'listar_servicios' %}"
+                    class="bg-gray-200 text-dark px-6 py-2 rounded-lg hover:bg-gray-300 transition">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition">
+                    Eliminar
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="text-center text-grayMedium py-4 text-sm mt-10">
+        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+    </footer>
+
+    <!-- Toast Messages -->
+    {% if messages %}
+    <div id="toast-container" class="fixed top-5 right-5 space-y-3 z-50">
+        {% for message in messages %}
+        <div class="flex items-center gap-3 bg-green-500 text-white px-5 py-3 rounded-lg shadow-lg animate-slide-down">
+            <i class="fa-solid fa-circle-check text-xl"></i>
+            <span class="font-medium">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Animación de entrada y salida
+        const toasts = document.querySelectorAll('#toast-container div');
+        toasts.forEach((toast, index) => {
+            setTimeout(() => {
+                toast.style.transition = "opacity 0.5s ease";
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 500);
+            }, 3500 + (index * 200)); // 3.5 segundos por toast
+        });
+    </script>
+
+    <style>
+        @keyframes slide-down {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-down {
+            animation: slide-down 0.3s ease-out;
+        }
+    </style>
+    {% endif %}
+</body>
+
+</html>

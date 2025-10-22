@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Nuevo Servicio — MiTurno</title>
+    <title>Editar Servicio — MiTurno</title>
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
 </head>
@@ -36,8 +36,9 @@
     <!-- Contenido -->
     <main class="flex-1 p-8 max-w-3xl mx-auto">
         <div class="bg-white rounded-xl shadow p-8 border border-gray-200">
-            <h1 class="text-3xl font-poppins font-semibold text-dark mb-6 text-center">Nuevo Servicio</h1>
-
+            <h1 class="text-3xl font-poppins font-semibold text-dark mb-6 text-center">
+                Editar Servicio
+            </h1>
 
             <form method="POST" class="space-y-5">
                 {% csrf_token %}
@@ -49,7 +50,7 @@
                     </a>
                     <button type="submit"
                         class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primaryLight transition shadow-md">
-                        Guardar servicio
+                        Guardar cambios
                     </button>
                 </div>
             </form>

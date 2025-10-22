@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .forms import RegistroClienteForm, EmpresaForm, ServicioForm
@@ -115,3 +115,32 @@ def crear_servicio(request):
         form = ServicioForm()
 
     return render(request, 'empresa/servicios/crear_servicio.html', {'form': form})
+
+@login_required
+def editar_servicio(request, id):
+    empresa = request.user.empresa
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
+
+    if request.method == 'POST':
+        form = ServicioForm(request.POST, instance=servicio)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'El servicio se actualizó correctamente.')
+            return redirect('listar_servicios')
+    else:
+        form = ServicioForm(instance=servicio)
+
+    return render(request, 'empresa/servicios/editar_servicio.html', {'form': form, 'servicio': servicio})
+
+
+@login_required
+def eliminar_servicio(request, id):
+    empresa = request.user.empresa
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
+
+    if request.method == 'POST':
+        servicio.delete()
+        messages.success(request, 'El servicio fue eliminado correctamente.')
+        return redirect('listar_servicios')
+
+    return render(request, 'empresa/servicios/eliminar_servicio.html', {'servicio': servicio})
