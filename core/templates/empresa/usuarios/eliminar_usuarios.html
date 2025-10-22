@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Eliminar Usuario — MiTurno</title>
+
+  <!-- ✅ Enlaza tu CSS generado por Tailwind -->
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+
+  <!-- ✅ Iconos FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 font-inter min-h-screen flex items-center justify-center">
+
+  <div class="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-gray-200 text-center">
+    <!-- Icono -->
+    <div class="text-red-600 mb-4">
+      <i class="fa-solid fa-triangle-exclamation text-5xl"></i>
+    </div>
+
+    <h1 class="text-2xl font-bold text-dark mb-3">¿Eliminar usuario?</h1>
+    <p class="text-gray-600 mb-6">
+      Estás a punto de eliminar el usuario <strong>{{ usuario.username }}</strong>.  
+      Esta acción no se puede deshacer.
+    </p>
+
+    <!-- ✅ FORMULARIO FUNCIONAL -->
+    <form method="POST" class="flex justify-center gap-4">
+      {% csrf_token %}
+
+      <!-- Botón Cancelar -->
+      <a href="{% url 'listar_usuarios' %}"
+         class="bg-gray-300 text-black font-medium px-5 py-2 rounded-lg hover:bg-gray-400 transition">
+        Cancelar
+      </a>
+
+      <!-- 🔴 Botón Eliminar -->
+      <button type="submit"
+              class="text-white font-medium px-5 py-2 rounded-lg transition"
+              style="background-color:#dc2626;"
+              onmouseover="this.style.backgroundColor='#b91c1c'"
+              onmouseout="this.style.backgroundColor='#dc2626'">
+        Eliminar
+      </button>
+    </form>
+  </div>
+
+</body>
+</html>

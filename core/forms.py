@@ -3,13 +3,14 @@ from django.contrib.auth.models import User
 from .models import Cliente, Empresa, Servicio
 
 class RegistroClienteForm(forms.ModelForm):
-    username = forms.CharField(max_length=50)
-    password = forms.CharField(widget=forms.PasswordInput)
-    email = forms.EmailField()
+    username = forms.CharField(max_length=50, label="Usuario")
+    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
+    email = forms.EmailField(label="Correo electrónico")
 
     class Meta:
         model = Cliente
         fields = ['telefono']
+        labels = {'telefono': 'Teléfono'}
 
 class EmpresaForm(forms.ModelForm):
     class Meta:
