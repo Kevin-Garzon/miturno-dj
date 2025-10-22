@@ -21,6 +21,12 @@
         <a href="#" class="text-grayMedium hover:text-primary transition">Dashboard</a>
         <a href="#" class="text-grayMedium hover:text-primary transition">Servicios</a>
         <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
+
+        <!-- Nuevo enlace: Configuración -->
+        <a href="{% url 'editar_empresa' %}" class="text-grayMedium hover:text-primary transition">
+          Configuración
+        </a>
+
         <a href="{% url 'logout' %}"
           class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
           Cerrar sesión
@@ -78,5 +84,4 @@
   </footer>
 
 </body>
-
 </html>
