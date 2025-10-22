@@ -19,7 +19,7 @@
       </div>
       <nav class="flex items-center gap-6">
         <a href="#" class="text-grayMedium hover:text-primary transition">Inicio</a>
-        <a href="#" class="text-grayMedium hover:text-primary transition">Perfil</a>
+        <a href="{% url 'perfil_cliente' %}" class="text-grayMedium hover:text-primary transition">Perfil</a>
         <a href="{% url 'logout' %}"
           class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
           Cerrar sesión
