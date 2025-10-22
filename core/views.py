@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .forms import RegistroClienteForm, EmpresaForm
-from .models import Cliente, Empresa
+from .forms import RegistroClienteForm, EmpresaForm, ServicioForm
+from .models import Cliente, Empresa, Servicio
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -88,3 +88,30 @@ def editar_empresa(request):
         form = EmpresaForm(instance=empresa)
 
     return render(request, 'empresa/editar_empresa.html', {'form': form})
+
+@login_required
+def listar_servicios(request):
+    # Obtener los servicios de la empresa logueada
+    empresa = request.user.empresa
+    servicios = Servicio.objects.filter(empresa=empresa).order_by('-fecha_creacion')
+
+    return render(request, 'empresa/servicios/listar_servicios.html', {
+        'servicios': servicios
+    })
+
+@login_required
+def crear_servicio(request):
+    empresa = request.user.empresa
+
+    if request.method == 'POST':
+        form = ServicioForm(request.POST)
+        if form.is_valid():
+            servicio = form.save(commit=False)
+            servicio.empresa = empresa
+            servicio.save()
+            messages.success(request, 'El servicio fue creado exitosamente.')
+            return redirect('listar_servicios')
+    else:
+        form = ServicioForm()
+
+    return render(request, 'empresa/servicios/crear_servicio.html', {'form': form})

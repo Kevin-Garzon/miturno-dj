@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo Servicio — MiTurno</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-white shadow-md border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+                <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+            </div>
+            <nav class="flex items-center gap-6">
+                <a href="{% url 'dashboard_empresa' %}"
+                    class="text-grayMedium hover:text-primary transition">Dashboard</a>
+                <a href="{% url 'listar_servicios' %}" class="text-primary font-semibold transition">Servicios</a>
+                <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
+                <a href="{% url 'editar_empresa' %}"
+                    class="text-grayMedium hover:text-primary transition">Configuración</a>
+                <a href="{% url 'logout' %}"
+                    class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
+                    Cerrar sesión
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="flex-1 p-8 max-w-3xl mx-auto">
+        <div class="bg-white rounded-xl shadow p-8 border border-gray-200">
+            <h1 class="text-3xl font-poppins font-semibold text-dark mb-6 text-center">Nuevo Servicio</h1>
+
+            {% if messages %}
+            <ul class="mb-4">
+                {% for message in messages %}
+                <li class="text-green-600 font-medium">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="flex justify-center gap-4 mt-6">
+                    <a href="{% url 'listar_servicios' %}"
+                        class="bg-gray-200 text-dark px-6 py-2 rounded-lg hover:bg-gray-300 transition">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                        class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primaryLight transition shadow-md">
+                        Guardar servicio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="text-center text-grayMedium py-4 text-sm mt-10">
+        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+    </footer>
+</body>
+
+</html>
