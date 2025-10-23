@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Usuario</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-poppins font-bold text-dark mb-6 text-center">Editar Usuario</h1>
+
+    <form method="POST" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-grayMedium">Nombre de usuario:</label>
+        <input type="text" name="username" value="{{ usuario.username }}" class="w-full border rounded-lg p-2">
+      </div>
+
+      <div>
+        <label class="block text-grayMedium">Correo electrónico:</label>
+        <input type="email" name="email" value="{{ usuario.email }}" class="w-full border rounded-lg p-2">
+      </div>
+
+      <div class="flex items-center">
+        <input type="checkbox" name="is_active" {% if usuario.is_active %}checked{% endif %} class="mr-2">
+        <span class="text-grayMedium">Activo</span>
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <a href="{% url 'listar_usuarios' %}" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition">Cancelar</a>
+        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primaryLight transition">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

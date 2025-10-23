@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Usuarios — MiTurno</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+  <!-- Librería de iconos Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow-md border-b border-gray-200">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+        <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#" class="text-grayMedium hover:text-primary transition">Dashboard</a>
+        <a href="{% url 'listar_servicios' %}" class="text-grayMedium hover:text-primary transition">Servicios</a>
+        <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
+        <a href="{% url 'listar_usuarios' %}" class="text-primary font-semibold transition">Usuarios</a>
+        <a href="{% url 'editar_empresa' %}" class="text-grayMedium hover:text-primary transition">Configuración</a>
+        <a href="{% url 'logout' %}" class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
+          Cerrar sesión
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-8">
+    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">Gestión de usuarios</h1>
+
+    <p class="text-grayMedium mb-6">Visualiza, edita o elimina los usuarios registrados en el sistema.</p>
+
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <table class="w-full text-left text-grayMedium">
+        <thead class="bg-primary text-white">
+          <tr>
+            <th class="py-3 px-4">Nombre de usuario</th>
+            <th class="py-3 px-4">Correo</th>
+            <th class="py-3 px-4">Estado</th>
+            <th class="py-3 px-4 text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in usuarios %}
+          <tr class="border-b border-gray-200">
+            <td class="py-3 px-4">{{ user.username }}</td>
+            <td class="py-3 px-4">{{ user.email }}</td>
+            <td class="py-3 px-4">
+              {% if user.is_active %}
+                <span class="text-green-600 font-semibold">Activo</span>
+              {% else %}
+                <span class="text-red-500 font-semibold">Inactivo</span>
+              {% endif %}
+           <td class="py-3 px-4 text-center">
+  <!-- ÍCONOS (iguales a los de servicios) -->
+  <a href="{% url 'editar_usuarios' user.id %}" class="text-blue-600 hover:text-blue-800 mr-3">
+      <i class="fa-solid fa-pen-to-square text-xl"></i>
+  </a>
+  <a href="{% url 'eliminar_usuario' user.id %}" class="text-red-600 hover:text-red-800">
+      <i class="fa-solid fa-trash text-xl"></i>
+  </a>
+</td>
+
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-4 text-grayMedium">No hay usuarios registrados.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-grayMedium py-4 text-sm">
+    © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+  </footer>
+</body>
+</html>

@@ -51,12 +51,22 @@ def registro_cliente(request):
     if request.method == 'POST':
         form = RegistroClienteForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            email = form.cleaned_data['email']
-            telefono = form.cleaned_data['telefono']
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            telefono = form.cleaned_data.get('telefono')
 
-            user = User.objects.create_user(username=username, password=password, email=email)
+            # Verificar si el usuario o correo ya existen
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "El nombre de usuario ya está registrado.")
+                return render(request, 'registro_cliente.html', {'form': form})
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "El correo electrónico ya está registrado.")
+                return render(request, 'registro_cliente.html', {'form': form})
+
+            # Crear usuario y cliente
+
+            user = User.objects.create_user(username=username, email=email, password=password)
             Cliente.objects.create(user=user, telefono=telefono)
 
             messages.success(request, "Registro exitoso. Ahora puedes iniciar sesión.")
@@ -125,12 +135,18 @@ def logout_view(request):
 @login_required
 @cliente_required
 def dashboard_cliente(request):
+    if not hasattr(request.user, 'cliente'):
+        messages.error(request, "No tienes permisos para acceder al panel de cliente.")
+        return redirect('dashboard_empresa')
     return render(request, 'dashboard_cliente.html')
 
 
 @login_required
 @empresa_required
 def dashboard_empresa(request):
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder al panel de barbería.")
+        return redirect('dashboard_cliente')
     return render(request, 'dashboard_empresa.html')
 
 
@@ -173,8 +189,29 @@ def listar_servicios(request):
 @login_required
 @empresa_required
 def crear_servicio(request):
-    empresa = request.user.empresa
+    # Verificar permisos
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder a esta sección.")
+        return redirect('dashboard_cliente')
 
+    # Obtener empresa asociada (solo si existe)
+    empresa = getattr(request.user, 'empresa', None)
+
+    # Si no tiene empresa y no es admin, bloquear
+    if not empresa and not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes una barbería registrada para crear servicios.")
+        return redirect('listar_servicios')
+
+    # Si el admin quiere crear un servicio, debe seleccionar una empresa existente
+    if request.user.is_superuser or request.user.is_staff:
+        # Si hay al menos una empresa en la base, usar la primera
+        if not empresa:
+            empresa = Empresa.objects.first()
+            if not empresa:
+                messages.error(request, "No existe ninguna barbería registrada para asociar el servicio.")
+                return redirect('listar_servicios')
+
+    # Procesar formulario
     if request.method == 'POST':
         form = ServicioForm(request.POST)
         if form.is_valid():
@@ -183,6 +220,8 @@ def crear_servicio(request):
             servicio.save()
             messages.success(request, 'El servicio fue creado exitosamente.')
             return redirect('listar_servicios')
+        else:
+            messages.error(request, 'Revisa los datos del formulario.')
     else:
         form = ServicioForm()
 
@@ -192,8 +231,15 @@ def crear_servicio(request):
 @login_required
 @empresa_required
 def editar_servicio(request, id):
-    empresa = request.user.empresa
-    servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder a esta sección.")
+        return redirect('dashboard_cliente')
+
+    if hasattr(request.user, 'empresa'):
+        empresa = request.user.empresa
+        servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
+    else:
+        servicio = get_object_or_404(Servicio, id=id)
 
     if request.method == 'POST':
         form = ServicioForm(request.POST, instance=servicio)
@@ -203,19 +249,66 @@ def editar_servicio(request, id):
             return redirect('listar_servicios')
     else:
         form = ServicioForm(instance=servicio)
-
     return render(request, 'empresa/servicios/editar_servicio.html', {'form': form, 'servicio': servicio})
 
 
 @login_required
 @empresa_required
 def eliminar_servicio(request, id):
-    empresa = request.user.empresa
-    servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder a esta sección.")
+        return redirect('dashboard_cliente')
+
+    if hasattr(request.user, 'empresa'):
+        empresa = request.user.empresa
+        servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
+    else:
+        servicio = get_object_or_404(Servicio, id=id)
 
     if request.method == 'POST':
         servicio.delete()
         messages.success(request, 'El servicio fue eliminado correctamente.')
         return redirect('listar_servicios')
-
     return render(request, 'empresa/servicios/eliminar_servicio.html', {'servicio': servicio})
+
+
+# --- USUARIOS ---
+@login_required
+def listar_usuarios(request):
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder a esta sección.")
+        return redirect('dashboard_cliente')
+
+    usuarios = User.objects.all().order_by('username')
+    return render(request, 'empresa/usuarios/usuarios.html', {'usuarios': usuarios})
+
+
+@login_required
+def editar_usuarios(request, id):
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder a esta sección.")
+        return redirect('dashboard_cliente')
+
+    usuario = get_object_or_404(User, id=id)
+    if request.method == 'POST':
+        usuario.username = request.POST.get('username')
+        usuario.email = request.POST.get('email')
+        usuario.is_active = 'is_active' in request.POST
+        usuario.save()
+        messages.success(request, 'Usuario actualizado correctamente.')
+        return redirect('listar_usuarios')
+    return render(request, 'empresa/usuarios/editar_usuarios.html', {'usuario': usuario})
+
+
+@login_required
+def eliminar_usuario(request, id):
+    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "No tienes permisos para acceder a esta sección.")
+        return redirect('dashboard_cliente')
+
+    usuario = get_object_or_404(User, id=id)
+    if request.method == 'POST':
+        usuario.delete()
+        messages.success(request, f'El usuario "{usuario.username}" fue eliminado correctamente.')
+        return redirect('listar_usuarios')
+    return render(request, 'empresa/usuarios/eliminar_usuarios.html', {'usuario': usuario})

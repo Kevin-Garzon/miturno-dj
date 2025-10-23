@@ -8,11 +8,19 @@ urlpatterns = [
     path('login/empresa/', views.login_empresa, name='login_empresa'),
     path('dashboard/cliente/', views.dashboard_cliente, name='dashboard_cliente'),
     path('dashboard/empresa/', views.dashboard_empresa, name='dashboard_empresa'),
+
+    # --- Empresa / Barbería ---
     path('empresa/configuracion/', views.editar_empresa, name='editar_empresa'),
     path('empresa/servicios/', views.listar_servicios, name='listar_servicios'),
     path('empresa/servicios/nuevo/', views.crear_servicio, name='crear_servicio'),
     path('empresa/servicios/<int:id>/editar/', views.editar_servicio, name='editar_servicio'),
     path('empresa/servicios/<int:id>/eliminar/', views.eliminar_servicio, name='eliminar_servicio'),
 
+    # --- Usuarios ---
+    path('empresa/usuarios/', views.listar_usuarios, name='listar_usuarios'),
+    path('empresa/usuarios/<int:id>/editar/', views.editar_usuarios, name='editar_usuarios'),
+    path('empresa/usuarios/<int:id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),
+
+    # --- Cierre de sesión ---
     path('logout/', views.logout_view, name='logout'),
 ]
