@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Panel Barbería — MiTurno{% endblock %}</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 font-inter text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Navbar principal -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-7 h-7">
+                <h1 class="text-lg font-semibold tracking-tight text-gray-900">MiTurno</h1>
+            </div>
+
+            <!-- Navegación -->
+            <nav class="flex items-center gap-6 text-sm">
+                <a href="{% url 'dashboard_empresa' %}"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'dashboard_empresa' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-chart-line text-xs"></i> Dashboard
+                </a>
+
+                <a href="{% url 'listar_servicios' %}"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'listar_servicios' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-scissors text-xs"></i> Servicios
+                </a>
+
+                <a href="{% url 'listar_clientes' %}"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'listar_clientes' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-users text-xs"></i> Clientes
+                </a>
+
+                <a href="#"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'citas' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-calendar-check text-xs"></i> Citas
+                </a>
+
+                <a href="{% url 'editar_empresa' %}"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'editar_empresa' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-gear text-xs"></i> Configuración
+                </a>
+
+                <a href="{% url 'logout' %}"
+                    class="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primaryLight transition">
+                    Cerrar sesión
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido dinámico -->
+    <main class="flex-1 px-8 py-10 max-w-7xl mx-auto w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-400 py-6 text-xs mt-auto border-t border-gray-200">
+        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+    </footer>
+
+</body>
+
+</html>

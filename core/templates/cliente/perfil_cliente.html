@@ -1,0 +1,70 @@
+{% extends 'layouts/base_clientes.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Mi Perfil — MiTurno{% endblock %}
+
+{% block content %}
+<main class="flex-1 max-w-3xl mx-auto px-6 py-10">
+
+    <!-- Encabezado -->
+    <div class="mb-10">
+        <h1 class="text-2xl text-gray-900 font-semibold mb-1">Mi perfil</h1>
+        <p class="text-gray-500 text-sm">Consulta tu información personal y actualiza tus datos cuando lo necesites.</p>
+    </div>
+
+    <!-- Tarjeta de información -->
+    <section class="bg-white border border-gray-200 rounded-lg shadow-sm p-8">
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="flex items-center gap-2 {% if 'error' in message.tags %}text-red-600 bg-red-50 border-red-200{% else %}text-green-600 bg-green-50 border-green-200{% endif %} text-sm border px-4 py-2 rounded-md mb-6">
+                <i class="fa-solid {% if 'error' in message.tags %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Información del usuario -->
+        <div class="space-y-8">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Usuario</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.username }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Correo electrónico</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.email }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Teléfono</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.cliente.telefono }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Fecha de registro</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.cliente.fecha_registro|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Botón -->
+        <div class="flex justify-end pt-10 mt-4">
+            <a href="{% url 'editar_cliente' %}"
+                class="bg-primary text-white px-6 py-2.5 rounded-md hover:bg-primaryLight transition text-sm font-medium shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-pen"></i> Editar perfil
+            </a>
+        </div>
+
+    </section>
+</main>
+{% endblock %}

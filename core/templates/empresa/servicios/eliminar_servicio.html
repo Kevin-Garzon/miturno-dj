@@ -1,0 +1,41 @@
+{% extends 'layouts/base_empresa.html' %}
+
+{% block title %}Eliminar Servicio — MiTurno{% endblock %}
+
+{% block content %}
+<main class="flex-1 px-8 py-10 flex justify-center items-center">
+
+    <div class="bg-white border border-gray-200 shadow-md rounded-lg p-10 max-w-lg w-full text-center">
+        <!-- Icono -->
+        <div class="flex justify-center mb-6">
+            <div class="bg-red-100 text-red-600 rounded-full p-5 shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation text-4xl"></i>
+            </div>
+        </div>
+
+        <!-- Título -->
+        <h1 class="text-2xl text-gray-900 font-medium mb-3">¿Eliminar servicio?</h1>
+
+        <!-- Descripción -->
+        <p class="text-gray-600 text-sm leading-relaxed mb-8">
+            Estás a punto de eliminar el servicio
+            <strong class="text-gray-800">{{ servicio.nombre }}</strong>.<br>
+            Esta acción <span class="text-red-600 font-semibold">no se puede deshacer</span>.
+        </p>
+
+        <!-- Botones -->
+        <form method="POST" class="flex justify-center gap-4">
+            {% csrf_token %}
+            <a href="{% url 'listar_servicios' %}"
+                class="bg-gray-100 text-gray-700 font-medium px-6 py-2.5 rounded-md hover:bg-gray-200 transition text-sm">
+                Cancelar
+            </a>
+            <button type="submit"
+                class="bg-gray-100 text-gray-700 font-medium px-6 py-2.5 rounded-md hover:bg-red-700 transition text-sm shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-trash-can"></i> Eliminar servicio
+            </button>
+        </form>
+    </div>
+
+</main>
+{% endblock %}
