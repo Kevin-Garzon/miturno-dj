@@ -152,10 +152,18 @@ def dashboard_cliente(request):
 @login_required
 @empresa_required
 def dashboard_empresa(request):
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder al panel de barbería.")
-        return redirect('dashboard_cliente')
-    return render(request, 'dashboard_empresa.html')
+    empresa = request.user.empresa
+    servicios_activos = empresa.servicios.filter(activo=True).count()
+    citas_dia = 0  # aún no implementado
+    clientes_total = 0  # si luego quieres contar clientes
+
+    context = {
+        'servicios_activos': servicios_activos,
+        'citas_dia': citas_dia,
+        'clientes_total': clientes_total,
+    }
+    return render(request, 'dashboard_empresa.html', context)
+
 
 
 # Logout
