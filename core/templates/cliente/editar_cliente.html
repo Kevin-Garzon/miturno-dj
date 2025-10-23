@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edita tu Perfil — MiTurno</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-white shadow-md border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+                <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+            </div>
+            <nav class="flex items-center gap-6">
+                <a href="{% url 'dashboard_cliente' %}"
+                    class="text-grayMedium hover:text-primary transition">Dashboard</a>
+                <a href="{% url 'perfil_cliente' %}" class="text-primary font-medium">Perfil</a>
+                <a href="{% url 'logout' %}"
+                    class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">Cerrar
+                    sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="flex-1 p-8">
+        <div class="max-w-2xl mx-auto bg-white shadow-lg p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-2xl font-poppins font-semibold text-dark mb-6 text-center">Edita tu Perfil</h2>
+
+            {% if messages %}
+            <ul class="mb-4">
+                {% for message in messages %}
+                <li class="text-sm text-green-600">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit"
+                    class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryLight transition font-semibold">
+                    Guardar cambios
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+
+</html>

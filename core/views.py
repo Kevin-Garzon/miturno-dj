@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import RegistroClienteForm, EmpresaForm, ServicioForm
+from .forms import RegistroClienteForm, EmpresaForm, ServicioForm, EditarClienteForm
 from .models import Cliente, Empresa, Servicio
 
 
@@ -135,10 +135,18 @@ def logout_view(request):
 @login_required
 @cliente_required
 def dashboard_cliente(request):
-    if not hasattr(request.user, 'cliente'):
-        messages.error(request, "No tienes permisos para acceder al panel de cliente.")
-        return redirect('dashboard_empresa')
-    return render(request, 'dashboard_cliente.html')
+    # Obtener la primera empresa (asumiendo que solo hay una)
+    try:
+        empresa = Empresa.objects.first()
+        servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by('nombre')
+    except:
+        empresa = None
+        servicios = []
+    
+    return render(request, 'dashboard_cliente.html', {
+        'empresa': empresa,
+        'servicios': servicios
+    })
 
 
 @login_required
@@ -150,9 +158,73 @@ def dashboard_empresa(request):
     return render(request, 'dashboard_empresa.html')
 
 
-# ---------------------
-# Empresa: Configuración y Servicios
-# ---------------------
+# Logout
+def logout_view(request):
+    logout(request)
+    return redirect('landing')
+
+
+@login_required
+def perfil_cliente(request):
+    try:
+        cliente = request.user.cliente
+    except Cliente.DoesNotExist:
+        messages.error(request, "No se encontró la información del cliente.")
+        return redirect('dashboard_cliente')
+    
+    return render(request, 'cliente/perfil_cliente.html', {
+        'cliente': cliente
+    })
+
+
+@login_required
+def editar_cliente(request):
+    try:
+        cliente = request.user.cliente
+    except Cliente.DoesNotExist:
+        messages.error(request, "No se encontró la información del cliente.")
+        return redirect('dashboard_cliente')
+
+    if request.method == 'POST':
+        form = EditarClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            new_username = form.cleaned_data['username']
+            
+            # Verificar si el nuevo username ya existe (excluyendo el usuario actual)
+            if User.objects.filter(username=new_username).exclude(id=request.user.id).exists():
+                messages.error(request, "Este nombre de usuario ya está en uso. Por favor elige otro.")
+                return render(request, 'cliente/editar_cliente.html', {'form': form})
+            
+            # Actualizar username del User
+            user = request.user
+            user.username = new_username
+            
+            # Actualizar password si se proporcionó una nueva
+            password = form.cleaned_data['password']
+            password_changed = False
+            if password:
+                user.set_password(password)
+                password_changed = True
+            
+            user.save()
+            form.save()
+            
+            # Si se cambió la contraseña, volver a autenticar al usuario
+            if password_changed:
+                user = authenticate(request, username=user.username, password=password)
+                if user is not None:
+                    login(request, user)
+            
+            messages.success(request, "Perfil actualizado correctamente.")
+            return redirect('perfil_cliente')
+    else:
+        form = EditarClienteForm(instance=cliente, initial={
+            'username': request.user.username
+        })
+
+    return render(request, 'cliente/editar_cliente.html', {'form': form})
+
+
 @login_required
 @empresa_required
 def editar_empresa(request):

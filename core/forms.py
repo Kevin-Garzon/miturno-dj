@@ -12,6 +12,14 @@ class RegistroClienteForm(forms.ModelForm):
         fields = ['telefono']
         labels = {'telefono': 'Teléfono'}
 
+class EditarClienteForm(forms.ModelForm):
+    username = forms.CharField(max_length=50)
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+
+    class Meta:
+        model = Cliente
+        fields = ['telefono']
+
 class EmpresaForm(forms.ModelForm):
     class Meta:
         model = Empresa

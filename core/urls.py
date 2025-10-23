@@ -11,6 +11,8 @@ urlpatterns = [
 
     # --- Empresa / Barbería ---
     path('empresa/configuracion/', views.editar_empresa, name='editar_empresa'),
+    path('cliente/perfil/', views.perfil_cliente, name='perfil_cliente'),
+    path('cliente/configuracion/', views.editar_cliente, name='editar_cliente'),
     path('empresa/servicios/', views.listar_servicios, name='listar_servicios'),
     path('empresa/servicios/nuevo/', views.crear_servicio, name='crear_servicio'),
     path('empresa/servicios/<int:id>/editar/', views.editar_servicio, name='editar_servicio'),
