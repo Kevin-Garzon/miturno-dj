@@ -19,9 +19,10 @@ urlpatterns = [
     path('empresa/servicios/<int:id>/eliminar/', views.eliminar_servicio, name='eliminar_servicio'),
 
     # --- Usuarios ---
-    path('empresa/usuarios/', views.listar_usuarios, name='listar_usuarios'),
-    path('empresa/usuarios/<int:id>/editar/', views.editar_usuarios, name='editar_usuarios'),
-    path('empresa/usuarios/<int:id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),
+    path('empresa/clientes/', views.listar_clientes, name='listar_clientes'),
+    path('empresa/clientes/<int:id>/editar/', views.editar_cliente_admin, name='editar_cliente_admin'),
+    path('empresa/clientes/<int:id>/eliminar/', views.eliminar_cliente_admin, name='eliminar_cliente_admin'),
+
 
     # --- Cierre de sesión ---
     path('logout/', views.logout_view, name='logout'),

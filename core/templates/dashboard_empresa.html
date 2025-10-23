@@ -1,88 +1,84 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layouts/base_empresa.html' %}
 
-<head>
-  <meta charset="UTF-8">
-  <title>Panel Barbería — MiTurno</title>
-  <link href="{% static 'css/output.css' %}" rel="stylesheet">
-</head>
+{% block title %}Dashboard — MiTurno{% endblock %}
 
-<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+{% block content %}
+<main class="flex-1 px-8 py-10 max-w-7xl mx-auto">
 
-  <!-- Navbar -->
-  <header class="bg-white shadow-md border-b border-gray-200">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
-        <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
-      </div>
-      <nav class="flex items-center gap-6">
-        <a href="#" class="text-grayMedium hover:text-primary transition">Dashboard</a>
-        <a href="{% url 'listar_servicios' %}" class="text-grayMedium hover:text-primary transition">Servicios</a>
-        <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
-        <a href="{% url 'listar_usuarios' %}" class="text-grayMedium hover:text-primary transition">Usuarios</a>
-
-        <!-- Nuevo enlace: Configuración -->
-        <a href="{% url 'editar_empresa' %}" class="text-grayMedium hover:text-primary transition">
-          Configuración
-        </a>
-
-        <a href="{% url 'logout' %}"
-          class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
-          Cerrar sesión
-        </a>
-      </nav>
+  <!-- Encabezado -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+    <div>
+      <h1 class="text-2xl text-gray-900 font-medium mb-1">
+        Bienvenido, {{ user.empresa.nombre_negocio|default:"Barbería" }}
+      </h1>
+      <p class="text-gray-500 text-sm">Aquí puedes visualizar la actividad reciente y métricas clave de tu barbería.</p>
     </div>
-  </header>
+  </div>
 
-  <!-- Contenido -->
-  <main class="flex-1 p-8">
-    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">
-      Bienvenido, {{ user.empresa.nombre_negocio|default:"Barbería" }}
-    </h1>
+  <!-- Tarjetas de resumen -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+    <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Citas del día</p>
+          <h2 class="text-3xl font-semibold text-primary mt-1">0</h2>
+        </div>
+        <i class="fa-solid fa-calendar-check text-gray-400 text-2xl"></i>
+      </div>
+    </div>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-        <p class="text-sm text-grayMedium">Citas del día</p>
-        <h2 class="text-2xl font-bold text-primary mt-2">0</h2>
+    <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Servicios activos</p>
+          <h2 class="text-3xl font-semibold text-primary mt-1">0</h2>
+        </div>
+        <i class="fa-solid fa-scissors text-gray-400 text-2xl"></i>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-        <p class="text-sm text-grayMedium">Servicios activos</p>
-        <h2 class="text-2xl font-bold text-primary mt-2">0</h2>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-        <p class="text-sm text-grayMedium">Clientes registrados</p>
-        <h2 class="text-2xl font-bold text-primary mt-2">0</h2>
-      </div>
-    </section>
+    </div>
 
-    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
-      <table class="w-full text-left text-grayMedium">
-        <thead class="bg-primary text-white">
+    <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Clientes registrados</p>
+          <h2 class="text-3xl font-semibold text-primary mt-1">0</h2>
+        </div>
+        <i class="fa-solid fa-users text-gray-400 text-2xl"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabla de citas recientes -->
+  <section class="bg-white border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+      <span class="text-sm text-gray-600">Citas recientes</span>
+      <i class="fa-solid fa-clock text-gray-400"></i>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-gray-700">
+        <thead class="bg-gray-50 border-b border-gray-200">
           <tr>
-            <th class="py-3 px-4">Cliente</th>
-            <th class="py-3 px-4">Servicio</th>
-            <th class="py-3 px-4">Hora</th>
-            <th class="py-3 px-4">Estado</th>
+            <th class="py-3 px-6 text-left">Cliente</th>
+            <th class="py-3 px-6 text-left">Servicio</th>
+            <th class="py-3 px-6 text-left">Hora</th>
+            <th class="py-3 px-6 text-left">Estado</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-gray-200">
-            <td class="py-3 px-4">Sin registros</td>
-            <td class="py-3 px-4">-</td>
-            <td class="py-3 px-4">-</td>
-            <td class="py-3 px-4">-</td>
+          <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+            <td class="py-3 px-6">Sin registros</td>
+            <td class="py-3 px-6">-</td>
+            <td class="py-3 px-6">-</td>
+            <td class="py-3 px-6">
+              <span class="inline-flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle text-[8px]"></i> -
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="text-center text-grayMedium py-4 text-sm">
-    © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
-  </footer>
-
-</body>
-</html>
+  </section>
+</main>
+{% endblock %}

@@ -1,40 +1,10 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Servicios — MiTurno</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
-</head>
+{% extends 'layouts/base_empresa.html' %}
 
-<body class="bg-gray-100 font-inter text-gray-800">
+{% block title %}Servicios — MiTurno{% endblock %}
 
-    <!-- Navbar -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-7 h-7">
-                <h1 class="text-lg font-semibold tracking-tight text-gray-900">MiTurno</h1>
-            </div>
-            <nav class="flex items-center gap-6 text-sm">
-                <a href="{% url 'dashboard_empresa' %}"
-                    class="text-gray-500 hover:text-primary transition">Dashboard</a>
-                <a href="{% url 'listar_servicios' %}" class="text-primary font-medium">Servicios</a>
-                <a href="#" class="text-gray-500 hover:text-primary transition">Citas</a>
-                <a href="{% url 'editar_empresa' %}"
-                    class="text-gray-500 hover:text-primary transition">Configuración</a>
-                <a href="{% url 'logout' %}"
-                    class="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primaryLight transition">
-                    Cerrar sesión
-                </a>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Contenido -->
-    <main class="flex-1 px-8 py-10 max-w-7xl mx-auto">
+{% block content %}
+<main class="flex-1 px-8 py-10 max-w-7xl mx-auto">
         <!-- Encabezado -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
             <div>
@@ -112,12 +82,4 @@
         </div>
         {% endif %}
     </main>
-
-    <!-- Footer -->
-    <footer class="text-center text-gray-400 py-6 text-xs mt-10 border-t border-gray-200">
-        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
-    </footer>
-
-</body>
-
-</html>
+{% endblock %}

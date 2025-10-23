@@ -1,107 +1,83 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layouts/base_empresa.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Servicio — MiTurno</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
-</head>
+{% block title %}Editar Servicio — MiTurno{% endblock %}
 
-<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+{% block content %}
+<main class="flex-1 px-8 py-10 max-w-3xl mx-auto">
 
-    <!-- Navbar -->
-    <header class="bg-white shadow-md border-b border-gray-200">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
-                <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
-            </div>
-            <nav class="flex items-center gap-6">
-                <a href="{% url 'dashboard_empresa' %}"
-                    class="text-grayMedium hover:text-primary transition">Dashboard</a>
-                <a href="{% url 'listar_servicios' %}" class="text-primary font-semibold transition">Servicios</a>
-                <a href="#" class="text-grayMedium hover:text-primary transition">Citas</a>
-                <a href="{% url 'editar_empresa' %}"
-                    class="text-grayMedium hover:text-primary transition">Configuración</a>
-                <a href="{% url 'logout' %}"
-                    class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
-                    Cerrar sesión
-                </a>
-            </nav>
+    <!-- Encabezado -->
+    <div class="mb-10 flex items-center gap-3">
+        <i class="fa-solid fa-scissors text-primary text-2xl"></i>
+        <div>
+            <h1 class="text-2xl text-gray-900 font-medium mb-1">Editar servicio</h1>
+            <p class="text-gray-500 text-sm">Modifica la información del servicio ofrecido en tu barbería.</p>
         </div>
-    </header>
-
-    <!-- Contenido -->
-    <main class="flex-1 p-8 max-w-3xl mx-auto">
-        <div class="bg-white rounded-xl shadow p-8 border border-gray-200">
-            <h1 class="text-3xl font-poppins font-semibold text-dark mb-6 text-center">
-                Editar Servicio
-            </h1>
-
-            <form method="POST" class="space-y-5">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="flex justify-center gap-4 mt-6">
-                    <a href="{% url 'listar_servicios' %}"
-                        class="bg-gray-200 text-dark px-6 py-2 rounded-lg hover:bg-gray-300 transition">
-                        Cancelar
-                    </a>
-                    <button type="submit"
-                        class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primaryLight transition shadow-md">
-                        Guardar cambios
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <footer class="text-center text-grayMedium py-4 text-sm mt-10">
-        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
-    </footer>
-
-    <!-- Toast Messages -->
-    {% if messages %}
-    <div id="toast-container" class="fixed top-5 right-5 space-y-3 z-50">
-        {% for message in messages %}
-        <div class="flex items-center gap-3 bg-green-500 text-white px-5 py-3 rounded-lg shadow-lg animate-slide-down">
-            <i class="fa-solid fa-circle-check text-xl"></i>
-            <span class="font-medium">{{ message }}</span>
-        </div>
-        {% endfor %}
     </div>
 
-    <script>
-        // Animación de entrada y salida
-        const toasts = document.querySelectorAll('#toast-container div');
-        toasts.forEach((toast, index) => {
-            setTimeout(() => {
-                toast.style.transition = "opacity 0.5s ease";
-                toast.style.opacity = "0";
-                setTimeout(() => toast.remove(), 500);
-            }, 3500 + (index * 200)); // 3.5 segundos por toast
-        });
-    </script>
+    <!-- Formulario -->
+    <div class="bg-white border border-gray-200 shadow-sm rounded-md p-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div
+            class="flex items-center gap-2 text-green-600 text-sm bg-green-50 border border-green-200 px-4 py-2 rounded-md mb-4">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
 
-    <style>
-        @keyframes slide-down {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
 
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+            <div>
+                <label for="id_nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre del servicio</label>
+                {{ form.nombre }}
+            </div>
 
-        .animate-slide-down {
-            animation: slide-down 0.3s ease-out;
-        }
-    </style>
-    {% endif %}
-</body>
+            <div>
+                <label for="id_descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                {{ form.descripcion }}
+            </div>
 
-</html>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label for="id_duracion" class="block text-sm font-medium text-gray-700 mb-1">Duración
+                        (minutos)</label>
+                    {{ form.duracion }}
+                </div>
+                <div>
+                    <label for="id_precio" class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                    {{ form.precio }}
+                </div>
+            </div>
+
+            <div class="flex items-center mt-3">
+                <input type="checkbox" name="activo" id="id_activo" {% if form.instance.activo %}checked{% endif %}
+                    class="w-4 h-4 accent-primary mr-2">
+                <label for="id_activo" class="text-gray-700 font-medium text-sm">Servicio activo</label>
+            </div>
+
+            <div class="flex justify-end pt-6 gap-3">
+                <a href="{% url 'listar_servicios' %}"
+                    class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md hover:bg-gray-200 transition text-sm font-medium">
+                    Cancelar
+                </a>
+                <button type="submit"
+                    class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primaryLight transition text-sm font-medium shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<!-- Ajuste visual de los inputs generados por Django 
+<style>
+    input[type="text"],
+    input[type="number"],
+    textarea {
+        @apply w-full border border-gray-300 rounded-md px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition;
+    }
+</style>-->
+{% endblock %}

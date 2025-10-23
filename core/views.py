@@ -346,41 +346,55 @@ def eliminar_servicio(request, id):
 
 # --- USUARIOS ---
 @login_required
-def listar_usuarios(request):
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder a esta sección.")
-        return redirect('dashboard_cliente')
+@empresa_required
+def listar_clientes(request):
+    # Solo usuarios que son clientes
+    clientes = Cliente.objects.select_related('user').order_by('user__username')
 
-    usuarios = User.objects.all().order_by('username')
-    return render(request, 'empresa/usuarios/usuarios.html', {'usuarios': usuarios})
-
-
-@login_required
-def editar_usuarios(request, id):
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder a esta sección.")
-        return redirect('dashboard_cliente')
-
-    usuario = get_object_or_404(User, id=id)
-    if request.method == 'POST':
-        usuario.username = request.POST.get('username')
-        usuario.email = request.POST.get('email')
-        usuario.is_active = 'is_active' in request.POST
-        usuario.save()
-        messages.success(request, 'Usuario actualizado correctamente.')
-        return redirect('listar_usuarios')
-    return render(request, 'empresa/usuarios/editar_usuarios.html', {'usuario': usuario})
+    return render(request, 'empresa/clientes/listar_clientes.html', {
+        'clientes': clientes
+    })
 
 
 @login_required
-def eliminar_usuario(request, id):
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder a esta sección.")
-        return redirect('dashboard_cliente')
+@empresa_required
+def editar_cliente_admin(request, id):
+    cliente = get_object_or_404(Cliente, id=id)
+    user = cliente.user  # relación directa con el usuario
 
-    usuario = get_object_or_404(User, id=id)
     if request.method == 'POST':
-        usuario.delete()
-        messages.success(request, f'El usuario "{usuario.username}" fue eliminado correctamente.')
-        return redirect('listar_usuarios')
-    return render(request, 'empresa/usuarios/eliminar_usuarios.html', {'usuario': usuario})
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        telefono = request.POST.get('telefono')
+        activo = 'is_active' in request.POST
+
+        user.username = username
+        user.email = email
+        user.is_active = activo
+        user.save()
+
+        cliente.telefono = telefono
+        cliente.save()
+
+        messages.success(request, "Cliente actualizado correctamente.")
+        return redirect('listar_clientes')
+
+    return render(request, 'empresa/clientes/editar_cliente.html', {
+        'cliente': cliente,
+        'user': user
+    })
+
+
+
+@login_required
+@empresa_required
+def eliminar_cliente_admin(request, id):
+    cliente = get_object_or_404(Cliente, id=id)
+    user = cliente.user
+
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, f"El cliente '{user.username}' fue eliminado correctamente.")
+        return redirect('listar_clientes')
+
+    return render(request, 'empresa/clientes/eliminar_cliente.html', {'cliente': cliente})

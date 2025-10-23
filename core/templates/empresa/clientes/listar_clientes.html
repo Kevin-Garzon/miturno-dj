@@ -1,0 +1,77 @@
+{% extends 'layouts/base_empresa.html' %}
+
+{% block title %}Clientes — MiTurno{% endblock %}
+
+{% block content %}
+<main class="flex-1 px-8 py-10 max-w-7xl mx-auto">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+        <div>
+            <h1 class="text-2xl text-gray-900 font-medium mb-1">Gestión de clientes</h1>
+            <p class="text-gray-500 text-sm">Administra los clientes registrados en el sistema.</p>
+        </div>
+    </div>
+
+    {% if clientes %}
+    <!-- Tabla de clientes -->
+    <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+            <span class="text-sm text-gray-600">Clientes registrados ({{ clientes|length }})</span>
+            <i class="fa-solid fa-users text-gray-400"></i>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-gray-700">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="py-3 px-6 text-left">Usuario</th>
+                        <th class="py-3 px-6 text-left">Correo</th>
+                        <th class="py-3 px-6 text-left">Teléfono</th>
+                        <th class="py-3 px-6 text-left">Estado</th>
+                        <th class="py-3 px-6 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr class="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                        <td class="py-3 px-6">{{ cliente.user.username }}</td>
+                        <td class="py-3 px-6">{{ cliente.user.email }}</td>
+                        <td class="py-3 px-6">{{ cliente.telefono }}</td>
+                        <td class="py-3 px-6">
+                            {% if cliente.user.is_active %}
+                            <span class="inline-flex items-center gap-1 text-green-600">
+                                <i class="fa-solid fa-circle text-[8px]"></i> Activo
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 text-red-500">
+                                <i class="fa-solid fa-circle text-[8px]"></i> Inactivo
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-6 text-right space-x-2">
+                            <a href="{% url 'editar_cliente_admin' cliente.id %}"
+                                class="text-blue-600 hover:text-blue-800 transition">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a href="{% url 'eliminar_cliente_admin' cliente.id %}"
+                                class="text-red-500 hover:text-red-700 transition">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Estado vacío -->
+    <div class="bg-white border border-gray-200 text-center py-16">
+        <i class="fa-solid fa-users text-gray-400 text-5xl mb-3"></i>
+        <h3 class="text-lg text-gray-800 font-medium mb-1">No hay clientes registrados</h3>
+        <p class="text-gray-500 text-sm mb-6">Los clientes aparecerán aquí cuando se registren en la plataforma.</p>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
