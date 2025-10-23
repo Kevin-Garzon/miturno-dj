@@ -155,7 +155,7 @@ def dashboard_empresa(request):
     empresa = request.user.empresa
     servicios_activos = empresa.servicios.filter(activo=True).count()
     citas_dia = 0  # aún no implementado
-    clientes_total = 0  # si luego quieres contar clientes
+    clientes_total = Cliente.objects.count()
 
     context = {
         'servicios_activos': servicios_activos,

@@ -72,12 +72,28 @@
 
 </main>
 
-<!-- Ajuste visual de los inputs generados por Django 
 <style>
     input[type="text"],
+    input[type="email"],
+    input[type="tel"],
     input[type="number"],
+    input[type="decimal"],
     textarea {
-        @apply w-full border border-gray-300 rounded-md px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition;
+        width: 100%;
+        border: 1px solid #d1d5db;
+        /* gray-300 */
+        border-radius: 6px;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-</style>-->
+
+    input:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        /* primary */
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
+</style>
 {% endblock %}
