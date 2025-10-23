@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .forms import RegistroClienteForm, RegistroEmpresaForm
-from .models import Cliente, Empresa
+from .forms import RegistroClienteForm, EmpresaForm, ServicioForm, EditarClienteForm
+from .models import Cliente, Empresa, Servicio
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 
 # Landing
 def landing(request):
@@ -24,25 +27,6 @@ def registro_cliente(request):
     else:
         form = RegistroClienteForm()
     return render(request, 'registro_cliente.html', {'form': form})
-
-
-# Registro Empresa
-def registro_empresa(request):
-    if request.method == 'POST':
-        form = RegistroEmpresaForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            email = form.cleaned_data['email']
-            nombre_negocio = form.cleaned_data['nombre_negocio']
-            direccion = form.cleaned_data['direccion']
-            telefono = form.cleaned_data['telefono']
-            user = User.objects.create_user(username=username, password=password, email=email)
-            Empresa.objects.create(user=user, nombre_negocio=nombre_negocio, direccion=direccion, telefono=telefono)
-            return redirect('login_empresa')
-    else:
-        form = RegistroEmpresaForm()
-    return render(request, 'registro_empresa.html', {'form': form})
 
 
 # Login Cliente
@@ -70,8 +54,135 @@ def login_empresa(request):
 
 
 # Dashboards básicos
+@login_required
 def dashboard_cliente(request):
-    return render(request, 'dashboard_cliente.html')
+    # Obtener la primera empresa (asumiendo que solo hay una)
+    try:
+        empresa = Empresa.objects.first()
+        servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by('nombre')
+    except:
+        empresa = None
+        servicios = []
+    
+    return render(request, 'dashboard_cliente.html', {
+        'empresa': empresa,
+        'servicios': servicios
+    })
 
+@login_required
 def dashboard_empresa(request):
     return render(request, 'dashboard_empresa.html')
+
+
+# Logout
+def logout_view(request):
+    logout(request)
+    return redirect('landing')
+
+
+@login_required
+def perfil_cliente(request):
+    try:
+        cliente = request.user.cliente
+    except Cliente.DoesNotExist:
+        messages.error(request, "No se encontró la información del cliente.")
+        return redirect('dashboard_cliente')
+    
+    return render(request, 'cliente/perfil_cliente.html', {
+        'cliente': cliente
+    })
+
+
+@login_required
+def editar_cliente(request):
+    try:
+        cliente = request.user.cliente
+    except Cliente.DoesNotExist:
+        messages.error(request, "No se encontró la información del cliente.")
+        return redirect('dashboard_cliente')
+
+    if request.method == 'POST':
+        form = EditarClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            new_username = form.cleaned_data['username']
+            
+            # Verificar si el nuevo username ya existe (excluyendo el usuario actual)
+            if User.objects.filter(username=new_username).exclude(id=request.user.id).exists():
+                messages.error(request, "Este nombre de usuario ya está en uso. Por favor elige otro.")
+                return render(request, 'cliente/editar_cliente.html', {'form': form})
+            
+            # Actualizar username del User
+            user = request.user
+            user.username = new_username
+            
+            # Actualizar password si se proporcionó una nueva
+            password = form.cleaned_data['password']
+            password_changed = False
+            if password:
+                user.set_password(password)
+                password_changed = True
+            
+            user.save()
+            form.save()
+            
+            # Si se cambió la contraseña, volver a autenticar al usuario
+            if password_changed:
+                user = authenticate(request, username=user.username, password=password)
+                if user is not None:
+                    login(request, user)
+            
+            messages.success(request, "Perfil actualizado correctamente.")
+            return redirect('perfil_cliente')
+    else:
+        form = EditarClienteForm(instance=cliente, initial={
+            'username': request.user.username
+        })
+
+    return render(request, 'cliente/editar_cliente.html', {'form': form})
+
+
+@login_required
+def editar_empresa(request):
+    try:
+        empresa = request.user.empresa  # accedemos al registro vinculado al usuario
+    except Empresa.DoesNotExist:
+        messages.error(request, "No se encontró la información de la empresa.")
+        return redirect('dashboard_empresa')
+
+    if request.method == 'POST':
+        form = EmpresaForm(request.POST, instance=empresa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Información actualizada correctamente.")
+            return redirect('editar_empresa')
+    else:
+        form = EmpresaForm(instance=empresa)
+
+    return render(request, 'empresa/editar_empresa.html', {'form': form})
+
+@login_required
+def listar_servicios(request):
+    # Obtener los servicios de la empresa logueada
+    empresa = request.user.empresa
+    servicios = Servicio.objects.filter(empresa=empresa).order_by('-fecha_creacion')
+
+    return render(request, 'empresa/servicios/listar_servicios.html', {
+        'servicios': servicios
+    })
+
+@login_required
+def crear_servicio(request):
+    empresa = request.user.empresa
+
+    if request.method == 'POST':
+        form = ServicioForm(request.POST)
+        if form.is_valid():
+            servicio = form.save(commit=False)
+            servicio.empresa = empresa
+            servicio.save()
+            messages.success(request, 'El servicio fue creado exitosamente.')
+            return redirect('listar_servicios')
+    else:
+        form = ServicioForm()
+
+    return render(request, 'empresa/servicios/crear_servicio.html', {'form': form})

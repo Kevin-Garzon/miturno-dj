@@ -82,6 +82,9 @@ DATABASES = {
     }
 }
 
+LOGIN_URL = '/login/cliente/'  # o /login/empresa/ según el caso
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
