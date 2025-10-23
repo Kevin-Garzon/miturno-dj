@@ -2,38 +2,43 @@
 {% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Registro Cliente — MiTurno</title>
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
 
   <style>
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="tel"] {
-    width: 100%;
-    border: 1px solid #d1d5db; /* gray-300 */
-    border-radius: 6px;
-    padding: 0.6rem 0.75rem;
-    font-size: 0.875rem; /* text-sm */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      /* gray-300 */
+      border-radius: 6px;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.875rem;
+      /* text-sm */
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-  input:focus {
-    outline: none;
-    border-color: #2563eb; /* primary */
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
-  }
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+      /* primary */
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
 
-  label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151; /* gray-700 */
-  }
-</style>
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      /* gray-700 */
+    }
+  </style>
 
 </head>
 
@@ -49,16 +54,20 @@
 
       <div class="space-y-3 text-sm">
         {{ form.username.label_tag }}
-        {{ form.username|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.username|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary
+        focus:outline-none" }}
 
         {{ form.email.label_tag }}
-        {{ form.email|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.email|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary
+        focus:outline-none" }}
 
         {{ form.telefono.label_tag }}
-        {{ form.telefono|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.telefono|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary
+        focus:outline-none" }}
 
         {{ form.password.label_tag }}
-        {{ form.password|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.password|add_class:"w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary
+        focus:outline-none" }}
       </div>
 
       <button type="submit"
@@ -72,6 +81,9 @@
       <a href="{% url 'login_cliente' %}" class="text-primary font-medium hover:underline">Inicia sesión</a>
     </p>
   </div>
-  
+
+
+  {% include 'layouts/messages.html' %}
 </body>
+
 </html>
