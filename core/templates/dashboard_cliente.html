@@ -1,107 +1,87 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layouts/base_clientes.html' %}
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Panel Cliente — MiTurno</title>
-  <link href="{% static 'css/output.css' %}" rel="stylesheet" />
-</head>
+{% block title %}Inicio — MiTurno{% endblock %}
 
-<body class="bg-graySoft font-inter min-h-screen flex flex-col">
-  <!-- Navbar -->
-  <header class="bg-white shadow-md border-b border-gray-200">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8" />
-        <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
-      </div>
-      <nav class="flex items-center gap-6">
-        <a href="#" class="text-grayMedium hover:text-primary transition">Inicio</a>
-        <a href="{% url 'perfil_cliente' %}" class="text-grayMedium hover:text-primary transition">Perfil</a>
-        <a href="{% url 'logout' %}"
-          class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">
-          Cerrar sesión
-        </a>
-      </nav>
+{% block content %}
+<main class="flex-1 max-w-6xl mx-auto px-6 py-10">
+
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+        <div>
+            <h1 class="text-2xl text-gray-900 font-semibold mb-1">
+                ¡Hola, {{ user.username|capfirst }}!
+            </h1>
+            <p class="text-gray-500 text-sm">Estos son los servicios disponibles para ti.</p>
+        </div>
     </div>
-  </header>
 
-  <!-- Contenido -->
-  <main class="flex-1 p-8">
-    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">
-      Bienvenido, {{ user.username }}
-    </h1>
+    <!-- Tarjetas resumen -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Mis próximas citas</p>
+                    <h2 class="text-3xl font-semibold text-primary mt-1">0</h2>
+                </div>
+                <i class="fa-solid fa-calendar-days text-gray-400 text-2xl"></i>
+            </div>
+        </div>
 
-    <!-- Sección de Servicios -->
-    <section class="mb-8">
-      <h2 class="text-2xl font-poppins font-semibold text-dark mb-4">
-        Servicios Disponibles
-      </h2>
-      <!-- Información de la empresa -->
-      {% if empresa %}
-      <div class="bg-primary rounded-2xl shadow-lg p-8 mb-8 text-center">
-        <div class="max-w-2xl mx-auto">
-          <h2 class="text-3xl font-poppins font-bold mb-4 text-white">{{ empresa.nombre_negocio }}</h2>
-          <div class="flex flex-col sm:flex-row justify-center items-center gap-6 text-lg text-white">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-location-dot"></i>
-              <span>{{ empresa.direccion }}</span>
+        <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Servicios disponibles</p>
+                    <h2 class="text-3xl font-semibold text-primary mt-1">{{ servicios|length }}</h2>
+                </div>
+                <i class="fa-solid fa-scissors text-gray-400 text-2xl"></i>
             </div>
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-phone"></i>
-              <span>{{ empresa.telefono }}</span>
+        </div>
+
+        <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Mi barbería</p>
+                    <h2 class="text-lg font-medium text-gray-900 mt-1">{{ empresa.nombre_negocio|default:"—" }}</h2>
+                </div>
+                <i class="fa-solid fa-store text-gray-400 text-2xl"></i>
             </div>
-          </div>
         </div>
-      </div>
-      {% endif %} 
-      {% if servicios %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for servicio in servicios %}
-        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition">
-          <h3 class="text-lg font-semibold text-dark mb-2">
-            {{ servicio.nombre }}
-          </h3>
-          {% if servicio.descripcion %}
-          <p class="text-grayMedium mb-3">{{ servicio.descripcion }}</p>
-          {% endif %}
-          <div class="flex justify-between items-center">
-            <span class="text-primary font-bold">${{ servicio.precio }}</span>
-            <span class="text-sm text-grayMedium">{{ servicio.duracion }} min</span>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 text-center">
-        <p class="text-grayMedium text-lg">
-          Esta empresa aún no tiene servicios disponibles.
-        </p>
-        <p class="text-grayMedium mt-2">
-          Vuelve más tarde para ver los servicios ofrecidos.
-        </p>
-      </div>
-      {% endif %}
     </section>
 
-    <!-- Sección de información personal -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-        <h2 class="text-lg font-semibold text-dark mb-2">Próxima cita</h2>
-        <p class="text-grayMedium">Aún no tienes citas programadas.</p>
-      </div>
-      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-        <h2 class="text-lg font-semibold text-dark mb-2">Historial</h2>
-        <p class="text-grayMedium">Consulta tus servicios anteriores.</p>
-      </div>
+    <!-- Servicios en Cards -->
+    <section>
+        <h2 class="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+            <i class="fa-solid fa-scissors text-primary"></i> Servicios disponibles
+        </h2>
+
+        {% if servicios %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for servicio in servicios %}
+            <div
+                class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition flex flex-col p-6">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-semibold text-gray-900">{{ servicio.nombre }}</h3>
+                    <i class="fa-solid fa-star text-yellow-400"></i>
+                </div>
+                <p class="text-gray-500 text-sm mb-4 line-clamp-3">{{ servicio.descripcion|default:"Sin descripción" }}</p>
+
+                <div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-primary font-semibold text-base">${{ servicio.precio }}</span>
+                    <span class="text-gray-400 text-sm flex items-center gap-1">
+                        <i class="fa-regular fa-clock text-xs"></i>
+                        {{ servicio.duracion }} min
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-10 bg-white border border-gray-200 rounded-md shadow-sm text-center text-gray-500">
+            <i class="fa-solid fa-circle-info text-gray-400 mr-2"></i>
+            No hay servicios disponibles por el momento.
+        </div>
+        {% endif %}
     </section>
-  </main>
 
-  <!-- Footer -->
-  <footer class="text-center text-grayMedium py-4 text-sm">
-    © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
-  </footer>
-</body>
-
-</html>
+</main>
+{% endblock %}
