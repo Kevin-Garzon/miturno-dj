@@ -52,5 +52,3 @@ package-lock.json
 # Ignorar archivos CSS generados automáticamente
 core/static/css/output.css
 
-# Borra el archivo del índice de Git, pero lo mantiene localmente
-git rm --cached core/static/css/output.css
