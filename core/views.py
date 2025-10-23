@@ -56,7 +56,18 @@ def login_empresa(request):
 # Dashboards básicos
 @login_required
 def dashboard_cliente(request):
-    return render(request, 'dashboard_cliente.html')
+    # Obtener la primera empresa (asumiendo que solo hay una)
+    try:
+        empresa = Empresa.objects.first()
+        servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by('nombre')
+    except:
+        empresa = None
+        servicios = []
+    
+    return render(request, 'dashboard_cliente.html', {
+        'empresa': empresa,
+        'servicios': servicios
+    })
 
 @login_required
 def dashboard_empresa(request):

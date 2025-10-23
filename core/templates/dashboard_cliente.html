@@ -3,18 +3,17 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Panel Cliente — MiTurno</title>
-  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+  <link href="{% static 'css/output.css' %}" rel="stylesheet" />
 </head>
 
 <body class="bg-graySoft font-inter min-h-screen flex flex-col">
-
   <!-- Navbar -->
   <header class="bg-white shadow-md border-b border-gray-200">
     <div class="container mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
+        <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8" />
         <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
       </div>
       <nav class="flex items-center gap-6">
@@ -30,8 +29,63 @@
 
   <!-- Contenido -->
   <main class="flex-1 p-8">
-    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">Bienvenido, {{ user.username }}</h1>
+    <h1 class="text-3xl font-poppins font-semibold text-dark mb-6">
+      Bienvenido, {{ user.username }}
+    </h1>
 
+    <!-- Sección de Servicios -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-poppins font-semibold text-dark mb-4">
+        Servicios Disponibles
+      </h2>
+      <!-- Información de la empresa -->
+      {% if empresa %}
+      <div class="bg-primary rounded-2xl shadow-lg p-8 mb-8 text-center">
+        <div class="max-w-2xl mx-auto">
+          <h2 class="text-3xl font-poppins font-bold mb-4 text-white">{{ empresa.nombre_negocio }}</h2>
+          <div class="flex flex-col sm:flex-row justify-center items-center gap-6 text-lg text-white">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>{{ empresa.direccion }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-phone"></i>
+              <span>{{ empresa.telefono }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %} 
+      {% if servicios %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for servicio in servicios %}
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-lg font-semibold text-dark mb-2">
+            {{ servicio.nombre }}
+          </h3>
+          {% if servicio.descripcion %}
+          <p class="text-grayMedium mb-3">{{ servicio.descripcion }}</p>
+          {% endif %}
+          <div class="flex justify-between items-center">
+            <span class="text-primary font-bold">${{ servicio.precio }}</span>
+            <span class="text-sm text-grayMedium">{{ servicio.duracion }} min</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 text-center">
+        <p class="text-grayMedium text-lg">
+          Esta empresa aún no tiene servicios disponibles.
+        </p>
+        <p class="text-grayMedium mt-2">
+          Vuelve más tarde para ver los servicios ofrecidos.
+        </p>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- Sección de información personal -->
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
         <h2 class="text-lg font-semibold text-dark mb-2">Próxima cita</h2>
@@ -41,10 +95,6 @@
         <h2 class="text-lg font-semibold text-dark mb-2">Historial</h2>
         <p class="text-grayMedium">Consulta tus servicios anteriores.</p>
       </div>
-      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-        <h2 class="text-lg font-semibold text-dark mb-2">Perfil</h2>
-        <p class="text-grayMedium">Teléfono: {{ user.cliente.telefono|default:'No registrado' }}</p>
-      </div>
     </section>
   </main>
 
@@ -52,7 +102,6 @@
   <footer class="text-center text-grayMedium py-4 text-sm">
     © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
   </footer>
-
 </body>
 
 </html>
