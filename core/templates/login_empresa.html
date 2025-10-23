@@ -3,28 +3,62 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Iniciar Sesión — Empresa</title>
+  <title>Iniciar Sesión — Barbería</title>
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
-</head>
-<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
 
-  <div class="bg-white shadow-lg p-8 rounded-2xl w-full max-w-md border border-gray-200">
-    <h2 class="text-2xl font-poppins font-bold text-dark text-center mb-6">
-      Iniciar Sesión — Barbería
+  <style>
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"] {
+    width: 100%;
+    border: 1px solid #d1d5db; /* gray-300 */
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem; /* text-sm */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #2563eb; /* primary */
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151; /* gray-700 */
+  }
+</style>
+
+</head>
+
+<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
+  <div class="bg-white border border-gray-200 shadow-md p-8 rounded-md w-full max-w-md">
+    <h2 class="text-xl font-poppins font-semibold text-dark text-center mb-6">
+      <i class="fa-solid fa-shop text-primary mr-2"></i> Iniciar sesión — Barbería
     </h2>
 
     <form method="POST" class="space-y-4">
       {% csrf_token %}
       <input type="text" name="username" placeholder="Usuario"
-        class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm">
       <input type="password" name="password" placeholder="Contraseña"
-        class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm">
+
       <button type="submit"
-        class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryLight transition font-semibold">
-        Entrar
+        class="w-full bg-primary text-white py-2.5 rounded-md hover:bg-primaryLight transition font-medium text-sm">
+        Ingresar
       </button>
     </form>
-  </div>
 
+    <p class="text-center text-grayMedium mt-6 text-sm">
+      ¿No tienes cuenta de empresa? <br>
+      <span class="text-gray-500">Contacta con el administrador del sistema</span>
+    </p>
+  </div>
 </body>
 </html>
