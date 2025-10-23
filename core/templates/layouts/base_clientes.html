@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Panel del Cliente — MiTurno{% endblock %}</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-gray-50 font-inter text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-7 h-7">
+                <h1 class="text-lg font-semibold tracking-tight text-gray-900">MiTurno</h1>
+            </div>
+
+            <!-- Navegación -->
+            <nav class="flex items-center gap-6 text-sm">
+                <a href="{% url 'dashboard_cliente' %}"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'dashboard_cliente' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-house text-xs"></i> Inicio
+                </a>
+
+                <a href="#"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'mis_citas' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-calendar-check text-xs"></i> Mis citas
+                </a>
+
+                <a href="{% url 'perfil_cliente' %}"
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'perfil_cliente' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-user text-xs"></i> Perfil
+                </a>
+                
+                <a href="{% url 'logout' %}"
+                    class="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primaryLight transition">
+                    Cerrar sesión
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido dinámico -->
+    <main class="flex-1 px-6 py-10 max-w-5xl mx-auto w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-400 py-6 text-xs mt-auto border-t border-gray-200">
+        © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
+    </footer>
+
+</body>
+</html>

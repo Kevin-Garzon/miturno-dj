@@ -1,57 +1,74 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layouts/base_clientes.html' %}
+{% load widget_tweaks %}
+{% block title %}Editar Perfil — MiTurno{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Edita tu Perfil — MiTurno</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
-</head>
+{% block content %}
+<main class="flex-1 max-w-3xl mx-auto px-6 py-10">
 
-<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+    <!-- Encabezado -->
+    <div class="mb-10">
+        <h1 class="text-2xl text-gray-900 font-semibold mb-1">Editar perfil</h1>
+        <p class="text-gray-500 text-sm">
+            Actualiza tus datos de usuario. El correo electrónico no se puede modificar.
+        </p>
+    </div>
 
-    <!-- Navbar -->
-    <header class="bg-white shadow-md border-b border-gray-200">
-        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
-                <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+    <!-- Contenedor del formulario -->
+    <section class="bg-white border border-gray-200 rounded-lg shadow-sm p-8">
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="flex items-center gap-2 {% if 'error' in message.tags %}text-red-600 bg-red-50 border-red-200{% else %}text-green-600 bg-green-50 border-green-200{% endif %} text-sm border px-4 py-2 rounded-md mb-6">
+                <i class="fa-solid {% if 'error' in message.tags %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+                <span>{{ message }}</span>
             </div>
-            <nav class="flex items-center gap-6">
-                <a href="{% url 'dashboard_cliente' %}"
-                    class="text-grayMedium hover:text-primary transition">Dashboard</a>
-                <a href="{% url 'perfil_cliente' %}" class="text-primary font-medium">Perfil</a>
-                <a href="{% url 'logout' %}"
-                    class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">Cerrar
-                    sesión</a>
-            </nav>
-        </div>
-    </header>
+            {% endfor %}
+        {% endif %}
 
-    <!-- Contenido -->
-    <main class="flex-1 p-8">
-        <div class="max-w-2xl mx-auto bg-white shadow-lg p-8 rounded-2xl border border-gray-200">
-            <h2 class="text-2xl font-poppins font-semibold text-dark mb-6 text-center">Edita tu Perfil</h2>
+        <form method="POST" class="space-y-8">
+            {% csrf_token %}
 
-            {% if messages %}
-            <ul class="mb-4">
-                {% for message in messages %}
-                <li class="text-sm text-green-600">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+            <!-- Usuario -->
+            <div class="flex flex-col">
+                <label for="id_username" class="block text-sm font-semibold text-gray-800 mb-2">Usuario</label>
+                {{ form.username|add_class:"w-full border border-gray-300 rounded-md px-4 py-2.5 text-gray-800 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder-gray-400" }}
+            </div>
 
-            <form method="POST" class="space-y-5">
-                {% csrf_token %}
-                {{ form.as_p }}
+            <!-- Teléfono -->
+            <div class="flex flex-col">
+                <label for="id_telefono" class="block text-sm font-semibold text-gray-800 mb-2">Teléfono</label>
+                {{ form.telefono|add_class:"w-full border border-gray-300 rounded-md px-4 py-2.5 text-gray-800 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder-gray-400" }}
+            </div>
+
+            <!-- Correo (solo lectura) -->
+            <div class="flex flex-col">
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Correo electrónico</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.email }}
+                </p>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="flex flex-col">
+                <label for="id_password" class="block text-sm font-semibold text-gray-800 mb-2">Nueva contraseña</label>
+                {{ form.password|add_class:"w-full border border-gray-300 rounded-md px-4 py-2.5 text-gray-800 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder-gray-400" }}
+                <p class="text-xs text-gray-500 mt-1">
+                    Déjalo vacío si no deseas cambiarla.
+                </p>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end pt-8 gap-3">
+                <a href="{% url 'perfil_cliente' %}"
+                    class="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-md hover:bg-gray-200 transition text-sm font-medium">
+                    Cancelar
+                </a>
                 <button type="submit"
-                    class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryLight transition font-semibold">
-                    Guardar cambios
+                    class="bg-primary text-white px-6 py-2.5 rounded-md hover:bg-primaryLight transition text-sm font-medium shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
                 </button>
-            </form>
-        </div>
-    </main>
-
-</body>
-
-</html>
+            </div>
+        </form>
+    </section>
+</main>
+{% endblock %}

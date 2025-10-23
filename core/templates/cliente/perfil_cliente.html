@@ -1,66 +1,70 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layouts/base_clientes.html' %}
+{% load widget_tweaks %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Mi Perfil — MiTurno</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
-</head>
+{% block title %}Mi Perfil — MiTurno{% endblock %}
 
-<body class="bg-graySoft font-inter min-h-screen flex flex-col">
+{% block content %}
+<main class="flex-1 max-w-3xl mx-auto px-6 py-10">
 
-    <!-- Navbar -->
-    <header class="bg-white shadow-md border-b border-gray-200">
-        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-8 h-8">
-                <h1 class="text-xl font-poppins font-bold text-dark">MiTurno</h1>
+    <!-- Encabezado -->
+    <div class="mb-10">
+        <h1 class="text-2xl text-gray-900 font-semibold mb-1">Mi perfil</h1>
+        <p class="text-gray-500 text-sm">Consulta tu información personal y actualiza tus datos cuando lo necesites.</p>
+    </div>
+
+    <!-- Tarjeta de información -->
+    <section class="bg-white border border-gray-200 rounded-lg shadow-sm p-8">
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="flex items-center gap-2 {% if 'error' in message.tags %}text-red-600 bg-red-50 border-red-200{% else %}text-green-600 bg-green-50 border-green-200{% endif %} text-sm border px-4 py-2 rounded-md mb-6">
+                <i class="fa-solid {% if 'error' in message.tags %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+                <span>{{ message }}</span>
             </div>
-            <nav class="flex items-center gap-6">
-                <a href="{% url 'dashboard_cliente' %}" class="text-grayMedium hover:text-primary transition">Dashboard</a>
-                <a href="{% url 'perfil_cliente' %}" class="text-primary font-medium">Perfil</a>
-                <a href="{% url 'logout' %}"
-                    class="bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primaryLight transition">Cerrar
-                    sesión</a>
-            </nav>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Información del usuario -->
+        <div class="space-y-8">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Usuario</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.username }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Correo electrónico</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.email }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Teléfono</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.cliente.telefono }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2">Fecha de registro</label>
+                <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
+                    {{ request.user.cliente.fecha_registro|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+
         </div>
-    </header>
 
-    <!-- Contenido -->
-    <main class="flex-1 p-8">
-        <div class="max-w-2xl mx-auto bg-white shadow-lg p-8 rounded-2xl border border-gray-200">
-            <h2 class="text-2xl font-poppins font-semibold text-dark mb-6 text-center">Mi Perfil</h2>
-
-            {% if messages %}
-            <ul class="mb-4">
-                {% for message in messages %}
-                <li class="text-sm text-green-600">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-
-            <div class="space-y-4 mb-6">
-                <div class="border-b border-gray-200 pb-4">
-                    <h3 class="text-lg font-semibold text-dark mb-2">Información Personal</h3>
-                    <p><strong>Usuario:</strong> {{ user.username }}</p>
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                    <p><strong>Teléfono:</strong> {{ cliente.telefono|default:"No registrado" }}</p>
-                </div>
-                
-                <div class="border-b border-gray-200 pb-4">
-                    <h3 class="text-lg font-semibold text-dark mb-2">Información de la Cuenta</h3>
-                    <p><strong>Fecha de registro:</strong> {{ cliente.fecha_registro|date:"d/m/Y" }}</p>
-                </div>
-            </div>
-
-            <a href="{% url 'editar_cliente' %}" 
-               class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryLight transition font-semibold text-center block">
-                Editar mi perfil
+        <!-- Botón -->
+        <div class="flex justify-end pt-10 mt-4">
+            <a href="{% url 'editar_cliente' %}"
+                class="bg-primary text-white px-6 py-2.5 rounded-md hover:bg-primaryLight transition text-sm font-medium shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-pen"></i> Editar perfil
             </a>
         </div>
-    </main>
 
-</body>
-
-</html>
+    </section>
+</main>
+{% endblock %}
