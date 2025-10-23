@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Cliente, Empresa, Servicio
 
+# Formulario de registro para Cliente
 class RegistroClienteForm(forms.ModelForm):
     username = forms.CharField(max_length=50, label="Usuario")
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
@@ -12,6 +13,7 @@ class RegistroClienteForm(forms.ModelForm):
         fields = ['telefono']
         labels = {'telefono': 'Teléfono'}
 
+# Formulario para editar perfil de Cliente
 class EditarClienteForm(forms.ModelForm):
     username = forms.CharField(max_length=50)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
@@ -20,6 +22,7 @@ class EditarClienteForm(forms.ModelForm):
         model = Cliente
         fields = ['telefono']
 
+# Formulario para editar Empresa
 class EmpresaForm(forms.ModelForm):
     class Meta:
         model = Empresa
@@ -39,6 +42,7 @@ class EmpresaForm(forms.ModelForm):
             }),
         }
 
+# Formulario para crear/editar Servicio
 class ServicioForm(forms.ModelForm):
     class Meta:
         model = Servicio

@@ -165,12 +165,9 @@ def dashboard_empresa(request):
     return render(request, 'dashboard_empresa.html', context)
 
 
-
-# Logout
-def logout_view(request):
-    logout(request)
-    return redirect('landing')
-
+# ---------------------
+# Clientes
+# ---------------------
 
 @login_required
 def perfil_cliente(request):
@@ -233,6 +230,10 @@ def editar_cliente(request):
     return render(request, 'cliente/editar_cliente.html', {'form': form})
 
 
+# ---------------------
+# Empresa / Barbería
+# ---------------------
+
 @login_required
 @empresa_required
 def editar_empresa(request):
@@ -256,6 +257,10 @@ def editar_empresa(request):
 
     return render(request, 'empresa/editar_empresa.html', {'form': form})
 
+
+# ---------------------
+# Servicios
+# ---------------------
 
 @login_required
 @empresa_required
@@ -352,7 +357,10 @@ def eliminar_servicio(request, id):
     return render(request, 'empresa/servicios/eliminar_servicio.html', {'servicio': servicio})
 
 
-# --- USUARIOS ---
+#---------------------
+# Clientes (panel empresa)
+#---------------------
+
 @login_required
 @empresa_required
 def listar_clientes(request):
