@@ -37,6 +37,7 @@
       font-weight: 500;
       color: #374151;
       /* gray-700 */
+      display: none;
     }
   </style>
 
@@ -53,18 +54,14 @@
       {{ form.non_field_errors }}
 
       <div class="space-y-3 text-sm">
-        {{ form.username.label_tag }}
-        {{ form.username|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.username|attr:"placeholder:Usuario"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
 
-        {{ form.email.label_tag }}
-        {{ form.email|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.email|attr:"placeholder:Correo electrónico"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
 
-        {{ form.telefono.label_tag }}
-        {{ form.telefono|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
+        {{ form.telefono|attr:"placeholder:Teléfono"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
 
-        {{ form.password.label_tag }}
-        {{ form.password|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none" }}
-      </div>
+        {{ form.password|attr:"placeholder:Contraseña"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+      </div>
 
       <button type="submit"
         class="w-full bg-primary text-white py-2.5 rounded-md hover:bg-primaryLight transition font-medium text-sm">
