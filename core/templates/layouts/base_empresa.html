@@ -32,6 +32,11 @@
                     <i class="fa-solid fa-scissors text-xs"></i> Servicios
                 </a>
 
+                <a href="{% url 'configurar_disponibilidad' %}"
+                    class="text-gray-500 hover:text-primary transition text-sm">
+                    Disponibilidad
+                </a>
+
                 <a href="{% url 'listar_clientes' %}"
                     class="flex items-center gap-1 {% if request.resolver_match.url_name == 'listar_clientes' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
                     <i class="fa-solid fa-users text-xs"></i> Clientes
@@ -65,6 +70,7 @@
         © {{ now|date:"Y" }} MiTurno — Todos los derechos reservados
     </footer>
 
+    {% include 'layouts/messages.html' %}
 </body>
 
 </html>

@@ -1,0 +1,93 @@
+{% extends 'layouts/base_empresa.html' %}
+{% load static %}
+
+{% block title %}Disponibilidad — MiTurno{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-8 py-10">
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-2xl text-gray-900 font-medium mb-1">Disponibilidad semanal</h1>
+        <p class="text-gray-500 text-sm">Define los días y horarios en los que tu barbería acepta citas.</p>
+    </div>
+
+    <!-- Mensajes -->
+    {% include 'layouts/messages.html' %}
+
+    <!-- Formulario -->
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <div class="bg-white border border-gray-200 shadow-sm rounded-md overflow-hidden">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                <span class="text-sm text-gray-600">Configura el horario por día</span>
+                <i class="fa-solid fa-calendar-days text-gray-400 text-sm"></i>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-gray-700">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="py-3 px-6 text-left">Día</th>
+                            <th class="py-3 px-6 text-left">Jornada Mañana</th>
+                            <th class="py-3 px-6 text-left">Jornada Tarde</th>
+                            <th class="py-3 px-6 text-center">Activo</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for d in dias %}
+                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                            <td class="py-3 px-6">{{ d.get_dia_display }}</td>
+
+                            <!-- Jornada de la mañana -->
+                            <td class="py-3 px-6">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-xs text-gray-500">Mañana</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="time" name="inicio_m_{{ d.id }}" value="{{ d.hora_inicio_m }}"
+                                            class="w-28 border border-gray-300 rounded-md px-2 py-2">
+                                        <span>-</span>
+                                        <input type="time" name="fin_m_{{ d.id }}" value="{{ d.hora_fin_m }}"
+                                            class="w-28 border border-gray-300 rounded-md px-2 py-2">
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Jornada de la tarde -->
+                            <td class="py-3 px-6">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-xs text-gray-500">Tarde</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="time" name="inicio_t_{{ d.id }}" value="{{ d.hora_inicio_t }}"
+                                            class="w-28 border border-gray-300 rounded-md px-2 py-2">
+                                        <span>-</span>
+                                        <input type="time" name="fin_t_{{ d.id }}" value="{{ d.hora_fin_t }}"
+                                            class="w-28 border border-gray-300 rounded-md px-2 py-2">
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Activo -->
+                            <td class="py-3 px-6 text-center">
+                                <input type="checkbox" name="activo_{{ d.id }}" {% if d.activo %}checked{% endif %}
+                                    class="w-4 h-4 accent-primary">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit"
+                class="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-md hover:bg-primaryLight transition text-sm font-medium shadow-sm">
+                <i class="fa-solid fa-floppy-disk text-xs"></i> Guardar cambios
+            </button>
+        </div>
+    </form>
+</main>
+{% endblock %}

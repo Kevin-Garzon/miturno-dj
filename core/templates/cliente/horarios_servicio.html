@@ -1,0 +1,40 @@
+{% extends 'layouts/base_clientes.html' %}
+{% block title %}{{ servicio.nombre }} — {{ dia|capfirst }}{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto px-6 py-10">
+
+    <a href="{% url 'detalle_servicio' servicio.id %}" class="text-primary text-sm mb-6 inline-flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Volver a {{ servicio.nombre }}
+    </a>
+
+    <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6 mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-2">{{ servicio.nombre }}</h1>
+        <p class="text-gray-500 mb-4">{{ servicio.descripcion|default:"Sin descripción" }}</p>
+        <div class="flex items-center gap-6 text-sm text-gray-700">
+            <span><i class="fa-regular fa-clock text-primary"></i> {{ servicio.duracion }} min</span>
+            <span><i class="fa-solid fa-dollar-sign text-primary"></i> ${{ servicio.precio }}</span>
+            <span><i class="fa-solid fa-store text-primary"></i> {{ empresa.nombre_negocio }}</span>
+        </div>
+    </section>
+
+    <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-regular fa-clock text-primary"></i> Horarios disponibles para {{ dia|capfirst }}
+        </h2>
+
+        {% if franjas %}
+        <div class="flex flex-wrap gap-2">
+            {% for f in franjas %}
+            <span class="px-4 py-2 border border-primary/40 text-primary rounded-md text-sm font-medium hover:bg-primary hover:text-white transition">
+                {{ f }}
+            </span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">No hay horarios disponibles para este día.</p>
+        {% endif %}
+    </section>
+
+</main>
+{% endblock %}

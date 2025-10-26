@@ -17,7 +17,7 @@
 
     <!-- Tarjetas resumen -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
+        <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md ">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Mis próximas citas</p>
@@ -40,7 +40,7 @@
         <div class="bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition rounded-md">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Mi barbería</p>
+                    <p class="text-sm text-gray-500">Negocio</p>
                     <h2 class="text-lg font-medium text-gray-900 mt-1">{{ empresa.nombre_negocio|default:"—" }}</h2>
                 </div>
                 <i class="fa-solid fa-store text-gray-400 text-2xl"></i>
@@ -57,13 +57,17 @@
         {% if servicios %}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for servicio in servicios %}
-            <div
-                class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition flex flex-col p-6">
+            <!-- Tarjeta clickeable -->
+            <a href="{% url 'detalle_servicio' servicio.id %}"
+                class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition flex flex-col p-6 hover:border-primary/60">
                 <div class="flex justify-between items-start mb-3">
                     <h3 class="text-xl font-semibold text-gray-900">{{ servicio.nombre }}</h3>
                     <i class="fa-solid fa-star text-yellow-400"></i>
                 </div>
-                <p class="text-gray-500 text-sm mb-4 line-clamp-3">{{ servicio.descripcion|default:"Sin descripción" }}</p>
+
+                <p class="text-gray-500 text-sm mb-4 line-clamp-3">
+                    {{ servicio.descripcion|default:"Sin descripción" }}
+                </p>
 
                 <div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
                     <span class="text-primary font-semibold text-base">${{ servicio.precio }}</span>
@@ -72,7 +76,7 @@
                         {{ servicio.duracion }} min
                     </span>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
@@ -82,6 +86,7 @@
         </div>
         {% endif %}
     </section>
+
 
 </main>
 {% endblock %}

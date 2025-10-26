@@ -3,8 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.utils.timezone import localtime
+from datetime import time
 from .forms import RegistroClienteForm, EmpresaForm, ServicioForm, EditarClienteForm
-from .models import Cliente, Empresa, Servicio
+from .models import Cliente, Empresa, Servicio, Disponibilidad
 
 
 # ---------------------
@@ -155,7 +157,7 @@ def dashboard_empresa(request):
     empresa = request.user.empresa
     servicios_activos = empresa.servicios.filter(activo=True).count()
     citas_dia = 0  # aún no implementado
-    clientes_total = 0  # si luego quieres contar clientes
+    clientes_total = Cliente.objects.count()
 
     context = {
         'servicios_activos': servicios_activos,
@@ -165,12 +167,9 @@ def dashboard_empresa(request):
     return render(request, 'dashboard_empresa.html', context)
 
 
-
-# Logout
-def logout_view(request):
-    logout(request)
-    return redirect('landing')
-
+# ---------------------
+# Clientes
+# ---------------------
 
 @login_required
 def perfil_cliente(request):
@@ -233,6 +232,103 @@ def editar_cliente(request):
     return render(request, 'cliente/editar_cliente.html', {'form': form})
 
 
+# ---------------------
+# Detalle de servicio (cliente)
+# ---------------------
+from datetime import datetime, timedelta
+
+@login_required
+@cliente_required
+def detalle_servicio(request, id):
+    empresa = Empresa.objects.first()
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
+
+    # Obtener disponibilidad activa
+    dias_disponibles = Disponibilidad.objects.filter(empresa=empresa, activo=True).order_by('id')
+
+    # Calcular franjas horarias según la duración del servicio
+    duracion = servicio.duracion  # minutos
+    franjas = {}
+
+    for d in dias_disponibles:
+        # Mañana
+        if d.hora_inicio_m and d.hora_fin_m:
+            hora_actual = datetime.combine(datetime.today(), d.hora_inicio_m)
+            hora_fin = datetime.combine(datetime.today(), d.hora_fin_m)
+            franjas[d.dia + '_m'] = []
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas[d.dia + '_m'].append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+        # Tarde
+        if d.hora_inicio_t and d.hora_fin_t:
+            hora_actual = datetime.combine(datetime.today(), d.hora_inicio_t)
+            hora_fin = datetime.combine(datetime.today(), d.hora_fin_t)
+            franjas[d.dia + '_t'] = []
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas[d.dia + '_t'].append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+    context = {
+        'servicio': servicio,
+        'empresa': empresa,
+        'franjas': franjas,
+        'dias_disponibles': dias_disponibles,
+    }
+
+    return render(request, 'cliente/detalle_servicio.html', context)
+
+
+@login_required
+@cliente_required
+def horarios_servicio(request, id, dia):
+    empresa = Empresa.objects.first()
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
+
+    # Buscar la disponibilidad del día
+    disponibilidad = Disponibilidad.objects.filter(empresa=empresa, dia=dia, activo=True).first()
+    franjas = []
+
+    if disponibilidad:
+        from datetime import datetime, timedelta
+        duracion = servicio.duracion  # minutos
+
+        # Generar franjas para jornada de mañana
+        if disponibilidad.hora_inicio_m and disponibilidad.hora_fin_m:
+            hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_m)
+            hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_m)
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+        # Generar franjas para jornada de tarde
+        if disponibilidad.hora_inicio_t and disponibilidad.hora_fin_t:
+            hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_t)
+            hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_t)
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+    context = {
+        'servicio': servicio,
+        'empresa': empresa,
+        'dia': dia,
+        'disponibilidad': disponibilidad,
+        'franjas': franjas,
+    }
+
+    return render(request, 'cliente/horarios_servicio.html', context)
+
+
+
+# ---------------------
+# Empresa / Barbería
+# ---------------------
+
 @login_required
 @empresa_required
 def editar_empresa(request):
@@ -256,6 +352,10 @@ def editar_empresa(request):
 
     return render(request, 'empresa/editar_empresa.html', {'form': form})
 
+
+# ---------------------
+# Servicios
+# ---------------------
 
 @login_required
 @empresa_required
@@ -352,7 +452,10 @@ def eliminar_servicio(request, id):
     return render(request, 'empresa/servicios/eliminar_servicio.html', {'servicio': servicio})
 
 
-# --- USUARIOS ---
+#---------------------
+# Clientes (panel empresa)
+#---------------------
+
 @login_required
 @empresa_required
 def listar_clientes(request):
@@ -406,3 +509,79 @@ def eliminar_cliente_admin(request, id):
         return redirect('listar_clientes')
 
     return render(request, 'empresa/clientes/eliminar_cliente.html', {'cliente': cliente})
+
+
+#---------------------
+# Disponibilidad
+#---------------------
+
+DIAS_ORDEN = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+
+
+def ensure_disponibilidad_inicial():
+    """
+    Crea 7 filas (lun-dom) si no existen aún, con horario por defecto dividido
+    en jornada de mañana (08:00–12:00) y tarde (14:00–18:00).
+    Activos de lunes a sábado y domingo inactivo. Asumimos UNA empresa.
+    """
+    empresa = Empresa.objects.first()
+    if not empresa:
+        return  # si aún no hay empresa, no hacemos nada
+
+    existentes = set(Disponibilidad.objects.values_list('dia', flat=True))
+    por_crear = [d for d in DIAS_ORDEN if d not in existentes]
+
+    for d in por_crear:
+        Disponibilidad.objects.create(
+            empresa=empresa,
+            dia=d,
+            hora_inicio_m=time(8, 0),
+            hora_fin_m=time(12, 0),
+            hora_inicio_t=time(14, 0),
+            hora_fin_t=time(18, 0),
+            activo=(d != 'domingo')
+        )
+
+
+@login_required
+@empresa_required
+def configurar_disponibilidad(request):
+    # Garantiza que existan 7 filas
+    ensure_disponibilidad_inicial()
+
+    empresa = request.user.empresa if hasattr(request.user, 'empresa') else Empresa.objects.first()
+    dias = Disponibilidad.objects.filter().order_by('id')  # una sola empresa => no filtramos por empresa
+
+    if request.method == 'POST':
+        cambios = 0
+        for d in dias:
+            ini_m = request.POST.get(f'inicio_m_{d.id}')
+            fin_m = request.POST.get(f'fin_m_{d.id}')
+            ini_t = request.POST.get(f'inicio_t_{d.id}')
+            fin_t = request.POST.get(f'fin_t_{d.id}')
+            activo = bool(request.POST.get(f'activo_{d.id}', False))
+
+            # Si el día está activo, debe tener horas válidas
+            if activo:
+                if not ini_m or not fin_m or not ini_t or not fin_t:
+                    messages.warning(request, f"Por favor completa los horarios para {d.get_dia_display()} antes de activarlo.")
+                    return redirect('configurar_disponibilidad')
+
+            # Asignar valores (vacíos permitidos)
+            d.hora_inicio_m = ini_m if ini_m else None
+            d.hora_fin_m = fin_m if fin_m else None
+            d.hora_inicio_t = ini_t if ini_t else None
+            d.hora_fin_t = fin_t if fin_t else None
+            d.activo = activo
+            d.save()
+            cambios += 1
+
+        if cambios:
+            messages.success(request, "Disponibilidad actualizada correctamente.")
+        else:
+            messages.info(request, "No hubo cambios para guardar.")
+
+        return redirect('configurar_disponibilidad')
+
+
+    return render(request, 'empresa/disponibilidad.html', {'dias': dias})

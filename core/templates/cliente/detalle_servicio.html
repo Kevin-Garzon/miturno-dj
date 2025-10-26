@@ -1,0 +1,43 @@
+{% extends 'layouts/base_clientes.html' %}
+
+{% block title %}{{ servicio.nombre }} — MiTurno{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-6 py-10">
+
+    <a href="{% url 'dashboard_cliente' %}" class="text-primary text-sm mb-6 inline-flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Volver a servicios
+    </a>
+
+    <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6 mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-2">{{ servicio.nombre }}</h1>
+        <p class="text-gray-500 mb-4">{{ servicio.descripcion|default:"Sin descripción" }}</p>
+        <div class="flex items-center gap-6 text-sm text-gray-700">
+            <span><i class="fa-regular fa-clock text-primary"></i> {{ servicio.duracion }} min</span>
+            <span><i class="fa-solid fa-dollar-sign text-primary"></i> ${{ servicio.precio }}</span>
+            <span><i class="fa-solid fa-store text-primary"></i> {{ empresa.nombre_negocio }}</span>
+        </div>
+    </section>
+
+    <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-regular fa-calendar-days text-primary"></i> Disponibilidad estimada
+        </h2>
+
+        {% if dias_disponibles %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {% for dia in dias_disponibles %}
+            <a href="{% url 'horarios_servicio' servicio.id dia.dia %}"
+                class="px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-medium rounded-md text-center transition">
+                {{ dia.get_dia_display }}
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">No hay horarios disponibles definidos por la empresa.</p>
+        {% endif %}
+    </section>
+
+
+</main>
+{% endblock %}

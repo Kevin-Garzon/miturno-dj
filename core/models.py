@@ -37,3 +37,34 @@ class Servicio(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.empresa.nombre_negocio})"
+    
+
+# Disponibilidad semanal por día 
+class Disponibilidad(models.Model):
+    DIAS_SEMANA = [
+        ('lunes', 'Lunes'),
+        ('martes', 'Martes'),
+        ('miercoles', 'Miércoles'),
+        ('jueves', 'Jueves'),
+        ('viernes', 'Viernes'),
+        ('sabado', 'Sábado'),
+        ('domingo', 'Domingo'),
+    ]
+
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='disponibilidades')
+    dia = models.CharField(max_length=10, choices=DIAS_SEMANA, unique=True)
+
+    # Jornada de la mañana
+    hora_inicio_m = models.TimeField(blank=True, null=True)
+    hora_fin_m = models.TimeField(blank=True, null=True)
+    # Jornada de la tarde
+    hora_inicio_t = models.TimeField(blank=True, null=True)
+    hora_fin_t = models.TimeField(blank=True, null=True)
+
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.get_dia_display()} (M: {self.hora_inicio_m}-{self.hora_fin_m} / T: {self.hora_inicio_t}-{self.hora_fin_t})"
