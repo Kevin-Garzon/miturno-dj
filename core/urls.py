@@ -31,6 +31,9 @@ urlpatterns = [
     path('empresa/clientes/<int:id>/editar/', views.editar_cliente_admin, name='editar_cliente_admin'),
     path('empresa/clientes/<int:id>/eliminar/', views.eliminar_cliente_admin, name='eliminar_cliente_admin'),
 
+    # --- Disponibilidad ---
+    path('empresa/disponibilidad/', views.configurar_disponibilidad, name='configurar_disponibilidad'),
+
 
     # --- Cierre de sesión ---
     path('logout/', views.logout_view, name='logout'),
