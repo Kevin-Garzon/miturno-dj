@@ -281,6 +281,49 @@ def detalle_servicio(request, id):
     return render(request, 'cliente/detalle_servicio.html', context)
 
 
+@login_required
+@cliente_required
+def horarios_servicio(request, id, dia):
+    empresa = Empresa.objects.first()
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
+
+    # Buscar la disponibilidad del día
+    disponibilidad = Disponibilidad.objects.filter(empresa=empresa, dia=dia, activo=True).first()
+    franjas = []
+
+    if disponibilidad:
+        from datetime import datetime, timedelta
+        duracion = servicio.duracion  # minutos
+
+        # Generar franjas para jornada de mañana
+        if disponibilidad.hora_inicio_m and disponibilidad.hora_fin_m:
+            hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_m)
+            hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_m)
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+        # Generar franjas para jornada de tarde
+        if disponibilidad.hora_inicio_t and disponibilidad.hora_fin_t:
+            hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_t)
+            hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_t)
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+    context = {
+        'servicio': servicio,
+        'empresa': empresa,
+        'dia': dia,
+        'disponibilidad': disponibilidad,
+        'franjas': franjas,
+    }
+
+    return render(request, 'cliente/horarios_servicio.html', context)
+
+
 
 # ---------------------
 # Empresa / Barbería

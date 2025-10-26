@@ -1,12 +1,11 @@
 {% extends 'layouts/base_clientes.html' %}
-
-{% block title %}{{ servicio.nombre }} — MiTurno{% endblock %}
+{% block title %}{{ servicio.nombre }} — {{ dia|capfirst }}{% endblock %}
 
 {% block content %}
-<main class="max-w-4xl mx-auto px-6 py-10">
+<main class="max-w-3xl mx-auto px-6 py-10">
 
-    <a href="{% url 'dashboard_cliente' %}" class="text-primary text-sm mb-6 inline-flex items-center gap-2">
-        <i class="fa-solid fa-arrow-left"></i> Volver a servicios
+    <a href="{% url 'detalle_servicio' servicio.id %}" class="text-primary text-sm mb-6 inline-flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Volver a {{ servicio.nombre }}
     </a>
 
     <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6 mb-8">
@@ -21,23 +20,21 @@
 
     <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fa-regular fa-calendar-days text-primary"></i> Disponibilidad estimada
+            <i class="fa-regular fa-clock text-primary"></i> Horarios disponibles para {{ dia|capfirst }}
         </h2>
 
-        {% if dias_disponibles %}
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {% for dia in dias_disponibles %}
-            <a href="{% url 'horarios_servicio' servicio.id dia.dia %}"
-                class="px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-medium rounded-md text-center transition">
-                {{ dia.get_dia_display }}
-            </a>
+        {% if franjas %}
+        <div class="flex flex-wrap gap-2">
+            {% for f in franjas %}
+            <span class="px-4 py-2 border border-primary/40 text-primary rounded-md text-sm font-medium hover:bg-primary hover:text-white transition">
+                {{ f }}
+            </span>
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-gray-500 text-sm">No hay horarios disponibles definidos por la empresa.</p>
+        <p class="text-gray-500 text-sm">No hay horarios disponibles para este día.</p>
         {% endif %}
     </section>
-
 
 </main>
 {% endblock %}
