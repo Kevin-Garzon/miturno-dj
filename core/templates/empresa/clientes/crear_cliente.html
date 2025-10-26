@@ -1,0 +1,78 @@
+{% extends 'layouts/base_empresa.html' %}
+
+{% block title %}Nuevo cliente — MiTurno{% endblock %}
+
+{% block content %}
+<main class="flex-1 px-8 py-10 max-w-4xl mx-auto">
+  <!-- Encabezado -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+      <i class="fa-solid fa-plus text-blue-600"></i>
+      Nuevo cliente
+    </h1>
+    <p class="text-gray-500 text-sm mt-1">Registra un nuevo cliente para tu barbería.</p>
+  </div>
+
+  <!-- Contenedor del formulario -->
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-8">
+    <form method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Nombre de usuario -->
+      <div>
+        <label for="nombre_usuario" class="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de usuario
+        </label>
+        <input type="text" id="nombre_usuario" name="nombre_usuario"
+          placeholder="Ej. juanperez23"
+          class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:border-blue-500 focus:ring focus:ring-blue-100">
+      </div>
+
+      <!-- Correo -->
+      <div>
+        <label for="correo" class="block text-sm font-medium text-gray-700 mb-1">
+          Correo electrónico
+        </label>
+        <input type="email" id="correo" name="correo"
+          placeholder="Ej. juanperez@gmail.com"
+          class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:border-blue-500 focus:ring focus:ring-blue-100">
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label for="telefono" class="block text-sm font-medium text-gray-700 mb-1">
+          Teléfono
+        </label>
+        <input type="tel" id="telefono" name="telefono"
+          placeholder="Ej. 3204567890"
+          class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:border-blue-500 focus:ring focus:ring-blue-100">
+      </div>
+
+      <!-- Contraseña -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+          Contraseña
+        </label>
+        <input type="password" id="password" name="password"
+          placeholder="Ingresa una contraseña segura"
+          class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:border-blue-500 focus:ring focus:ring-blue-100">
+      </div>
+
+      <!-- Botones -->
+     <div class="flex justify-end gap-3 pt-4">
+         <a href="{% url 'listar_clientes' %}"
+                 class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition text-sm">
+                 Cancelar
+             </a>
+         <button type="submit"
+            class="px-5 py-2.5 rounded-md text-white text-sm font-medium shadow-sm focus:ring-2 focus:ring-blue-300 transition"
+             style="background-color:#2563eb; border:1px solid #1e40af;"
+             onmouseover="this.style.backgroundColor='#1e40af';"
+             onmouseout="this.style.backgroundColor='#2563eb';">
+             <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar cliente
+         </button>
+        </div>
+    </form>
+  </div>
+</main>
+{% endblock %}
