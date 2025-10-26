@@ -233,6 +233,56 @@ def editar_cliente(request):
 
 
 # ---------------------
+# Detalle de servicio (cliente)
+# ---------------------
+from datetime import datetime, timedelta
+
+@login_required
+@cliente_required
+def detalle_servicio(request, id):
+    empresa = Empresa.objects.first()
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
+
+    # Obtener disponibilidad activa
+    dias_disponibles = Disponibilidad.objects.filter(empresa=empresa, activo=True).order_by('id')
+
+    # Calcular franjas horarias según la duración del servicio
+    duracion = servicio.duracion  # minutos
+    franjas = {}
+
+    for d in dias_disponibles:
+        # Mañana
+        if d.hora_inicio_m and d.hora_fin_m:
+            hora_actual = datetime.combine(datetime.today(), d.hora_inicio_m)
+            hora_fin = datetime.combine(datetime.today(), d.hora_fin_m)
+            franjas[d.dia + '_m'] = []
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas[d.dia + '_m'].append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+        # Tarde
+        if d.hora_inicio_t and d.hora_fin_t:
+            hora_actual = datetime.combine(datetime.today(), d.hora_inicio_t)
+            hora_fin = datetime.combine(datetime.today(), d.hora_fin_t)
+            franjas[d.dia + '_t'] = []
+            while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+                fin_slot = hora_actual + timedelta(minutes=duracion)
+                franjas[d.dia + '_t'].append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                hora_actual = fin_slot
+
+    context = {
+        'servicio': servicio,
+        'empresa': empresa,
+        'franjas': franjas,
+        'dias_disponibles': dias_disponibles,
+    }
+
+    return render(request, 'cliente/detalle_servicio.html', context)
+
+
+
+# ---------------------
 # Empresa / Barbería
 # ---------------------
 
