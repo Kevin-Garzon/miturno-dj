@@ -56,7 +56,7 @@ ROOT_URLCONF = 'miturno.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'core' / 'templates'],  # 👈 carpeta de templates globales
+        'DIRS': [BASE_DIR / 'core' / 'templates'],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

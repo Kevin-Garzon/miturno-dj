@@ -13,16 +13,14 @@ urlpatterns = [
     path('dashboard/cliente/', views.dashboard_cliente, name='dashboard_cliente'),
     path('dashboard/empresa/', views.dashboard_empresa, name='dashboard_empresa'),
 
-    # --- Empresa / Barbería ---
-    path('empresa/configuracion/', views.editar_empresa, name='editar_empresa'),
-
     # --- Cliente ---
     path('cliente/perfil/', views.perfil_cliente, name='perfil_cliente'),
     path('cliente/configuracion/', views.editar_cliente, name='editar_cliente'),
     path('cliente/servicios/<int:id>/', views.detalle_servicio, name='detalle_servicio'),
     path('cliente/servicios/<int:id>/disponibilidad/<str:dia>/', views.horarios_servicio, name='horarios_servicio'),
 
-
+    # --- Empresa / Barbería ---
+    path('empresa/configuracion/', views.editar_empresa, name='editar_empresa'),
 
     # --- Servicios ---
     path('empresa/servicios/', views.listar_servicios, name='listar_servicios'),

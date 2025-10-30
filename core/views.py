@@ -1,20 +1,21 @@
+from datetime import datetime, timedelta, time
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import localtime
-from datetime import time
+
 from .forms import RegistroClienteForm, EmpresaForm, ServicioForm, EditarClienteForm
 from .models import Cliente, Empresa, Servicio, Disponibilidad
 
 
-# ---------------------
-# Decoradores personalizados
-# ---------------------
+# ============================================================
+# DECORADORES (para restringir acceso según tipo de usuario)
+# ============================================================
 
 def empresa_required(view_func):
-    """Permite el acceso solo a usuarios con cuenta de empresa"""
+    """Solo deja entrar a usuarios que tengan perfil de empresa"""
     def wrapper(request, *args, **kwargs):
         try:
             request.user.empresa
@@ -27,7 +28,7 @@ def empresa_required(view_func):
 
 
 def cliente_required(view_func):
-    """Permite el acceso solo a usuarios con cuenta de cliente"""
+    """Solo deja entrar a usuarios que tengan perfil de cliente"""
     def wrapper(request, *args, **kwargs):
         try:
             request.user.cliente
@@ -39,17 +40,21 @@ def cliente_required(view_func):
     return wrapper
 
 
-# ---------------------
-# Landing
-# ---------------------
+# ============================================================
+# PÁGINA PRINCIPAL
+# ============================================================
+
 def landing(request):
+    """Página inicial del sitio"""
     return render(request, 'landing.html')
 
 
-# ---------------------
-# Registro de cliente
-# ---------------------
+# ============================================================
+# REGISTRO Y LOGIN DE CLIENTES / EMPRESA
+# ============================================================
+
 def registro_cliente(request):
+    """Registro de nuevos clientes"""
     if request.method == 'POST':
         form = RegistroClienteForm(request.POST)
         if form.is_valid():
@@ -66,8 +71,7 @@ def registro_cliente(request):
                 messages.error(request, "El correo electrónico ya está registrado.")
                 return render(request, 'registro_cliente.html', {'form': form})
 
-            # Crear usuario y cliente
-
+            # Crear usuario y cliente asociados
             user = User.objects.create_user(username=username, email=email, password=password)
             Cliente.objects.create(user=user, telefono=telefono)
 
@@ -79,71 +83,61 @@ def registro_cliente(request):
     return render(request, 'registro_cliente.html', {'form': form})
 
 
-# ---------------------
-# Login Cliente
-# ---------------------
 def login_cliente(request):
+    """Inicio de sesión para clientes"""
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Validar que sea cliente
             if Cliente.objects.filter(user=user).exists():
                 login(request, user)
                 return redirect('dashboard_cliente')
             else:
                 messages.error(request, "Este usuario no tiene cuenta de cliente.")
-                return redirect('login_cliente')
         else:
             messages.error(request, "Credenciales incorrectas.")
     return render(request, 'login_cliente.html')
 
 
-# ---------------------
-# Login Empresa
-# ---------------------
 def login_empresa(request):
+    """Inicio de sesión para empresa"""
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Validar que sea empresa
             if Empresa.objects.filter(user=user).exists():
                 login(request, user)
                 return redirect('dashboard_empresa')
             else:
                 messages.error(request, "Este usuario no tiene cuenta de empresa.")
-                return redirect('login_empresa')
         else:
             messages.error(request, "Credenciales incorrectas.")
     return render(request, 'login_empresa.html')
 
 
-# ---------------------
-# Logout
-# ---------------------
 def logout_view(request):
+    """Cerrar sesión (funciona para ambos tipos de usuarios)"""
     logout(request)
     return redirect('landing')
 
 
-# ---------------------
-# Dashboards
-# ---------------------
+# ============================================================
+# DASHBOARDS (pantallas principales de cliente y empresa)
+# ============================================================
+
 @login_required
 @cliente_required
 def dashboard_cliente(request):
-    # Obtener la primera empresa (asumiendo que solo hay una)
-    try:
-        empresa = Empresa.objects.first()
-        servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by('nombre')
-    except:
-        empresa = None
-        servicios = []
+    """
+    Dashboard del cliente:
+    Muestra los servicios activos de la única empresa disponible.
+    """
+    empresa = Empresa.objects.first()
+    servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by('nombre') if empresa else []
     
     return render(request, 'dashboard_cliente.html', {
         'empresa': empresa,
@@ -154,38 +148,41 @@ def dashboard_cliente(request):
 @login_required
 @empresa_required
 def dashboard_empresa(request):
+    """
+    Dashboard de la empresa:
+    Muestra algunos datos de resumen (servicios activos, clientes, etc.)
+    """
     empresa = request.user.empresa
     servicios_activos = empresa.servicios.filter(activo=True).count()
-    citas_dia = 0  # aún no implementado
     clientes_total = Cliente.objects.count()
 
     context = {
         'servicios_activos': servicios_activos,
-        'citas_dia': citas_dia,
+        'citas_dia': 0,  # todavía no se ha implementado el módulo de citas
         'clientes_total': clientes_total,
     }
     return render(request, 'dashboard_empresa.html', context)
 
 
-# ---------------------
-# Clientes
-# ---------------------
+# ============================================================
+# PERFIL Y CONFIGURACIÓN DE CLIENTES
+# ============================================================
 
 @login_required
 def perfil_cliente(request):
+    """Muestra el perfil del cliente logueado"""
     try:
         cliente = request.user.cliente
     except Cliente.DoesNotExist:
         messages.error(request, "No se encontró la información del cliente.")
         return redirect('dashboard_cliente')
     
-    return render(request, 'cliente/perfil_cliente.html', {
-        'cliente': cliente
-    })
+    return render(request, 'cliente/perfil_cliente.html', {'cliente': cliente})
 
 
 @login_required
 def editar_cliente(request):
+    """Permite al cliente editar su información (usuario, teléfono, contraseña)"""
     try:
         cliente = request.user.cliente
     except Cliente.DoesNotExist:
@@ -196,58 +193,51 @@ def editar_cliente(request):
         form = EditarClienteForm(request.POST, instance=cliente)
         if form.is_valid():
             new_username = form.cleaned_data['username']
-            
-            # Verificar si el nuevo username ya existe (excluyendo el usuario actual)
+
+            # Evita duplicar usernames
             if User.objects.filter(username=new_username).exclude(id=request.user.id).exists():
-                messages.error(request, "Este nombre de usuario ya está en uso. Por favor elige otro.")
+                messages.error(request, "Este nombre de usuario ya está en uso.")
                 return render(request, 'cliente/editar_cliente.html', {'form': form})
-            
-            # Actualizar username del User
+
+            # Actualizar datos del usuario
             user = request.user
             user.username = new_username
-            
-            # Actualizar password si se proporcionó una nueva
+
+            # Si el cliente escribió una nueva contraseña
             password = form.cleaned_data['password']
-            password_changed = False
             if password:
                 user.set_password(password)
-                password_changed = True
-            
-            user.save()
-            form.save()
-            
-            # Si se cambió la contraseña, volver a autenticar al usuario
-            if password_changed:
+                user.save()
                 user = authenticate(request, username=user.username, password=password)
-                if user is not None:
+                if user:
                     login(request, user)
-            
+            else:
+                user.save()
+
+            # Guardar datos del cliente (teléfono, etc.)
+            form.save()
+
             messages.success(request, "Perfil actualizado correctamente.")
             return redirect('perfil_cliente')
     else:
-        form = EditarClienteForm(instance=cliente, initial={
-            'username': request.user.username
-        })
+        form = EditarClienteForm(instance=cliente, initial={'username': request.user.username})
 
     return render(request, 'cliente/editar_cliente.html', {'form': form})
 
 
-# ---------------------
-# Detalle de servicio (cliente)
-# ---------------------
-from datetime import datetime, timedelta
+# ============================================================
+# SERVICIOS (vista detalle y horarios disponibles para cliente)
+# ============================================================
 
 @login_required
 @cliente_required
 def detalle_servicio(request, id):
+    """Muestra detalle de un servicio y calcula las franjas horarias disponibles"""
     empresa = Empresa.objects.first()
     servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
 
-    # Obtener disponibilidad activa
     dias_disponibles = Disponibilidad.objects.filter(empresa=empresa, activo=True).order_by('id')
-
-    # Calcular franjas horarias según la duración del servicio
-    duracion = servicio.duracion  # minutos
+    duracion = servicio.duracion
     franjas = {}
 
     for d in dias_disponibles:
@@ -277,25 +267,22 @@ def detalle_servicio(request, id):
         'franjas': franjas,
         'dias_disponibles': dias_disponibles,
     }
-
     return render(request, 'cliente/detalle_servicio.html', context)
 
 
 @login_required
 @cliente_required
 def horarios_servicio(request, id, dia):
+    """Muestra las franjas de un día específico"""
     empresa = Empresa.objects.first()
     servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
-
-    # Buscar la disponibilidad del día
     disponibilidad = Disponibilidad.objects.filter(empresa=empresa, dia=dia, activo=True).first()
+
     franjas = []
-
     if disponibilidad:
-        from datetime import datetime, timedelta
-        duracion = servicio.duracion  # minutos
+        duracion = servicio.duracion
 
-        # Generar franjas para jornada de mañana
+        # Mañana
         if disponibilidad.hora_inicio_m and disponibilidad.hora_fin_m:
             hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_m)
             hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_m)
@@ -304,7 +291,7 @@ def horarios_servicio(request, id, dia):
                 franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
                 hora_actual = fin_slot
 
-        # Generar franjas para jornada de tarde
+        # Tarde
         if disponibilidad.hora_inicio_t and disponibilidad.hora_fin_t:
             hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_t)
             hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_t)
@@ -313,33 +300,25 @@ def horarios_servicio(request, id, dia):
                 franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
                 hora_actual = fin_slot
 
-    context = {
+    return render(request, 'cliente/horarios_servicio.html', {
         'servicio': servicio,
         'empresa': empresa,
         'dia': dia,
         'disponibilidad': disponibilidad,
         'franjas': franjas,
-    }
-
-    return render(request, 'cliente/horarios_servicio.html', context)
+    })
 
 
-
-# ---------------------
-# Empresa / Barbería
-# ---------------------
+# ============================================================
+# CONFIGURACIÓN DE EMPRESA Y CRUD DE SERVICIOS
+# ============================================================
 
 @login_required
 @empresa_required
 def editar_empresa(request):
-    # Limpia mensajes anteriores
-    storage = messages.get_messages(request)
-    storage.used = True
-    try:
-        empresa = request.user.empresa
-    except Empresa.DoesNotExist:
-        messages.error(request, "No se encontró la información de la empresa.")
-        return redirect('dashboard_empresa')
+    """Permite editar la información de la empresa"""
+    messages.get_messages(request).used = True
+    empresa = request.user.empresa
 
     if request.method == 'POST':
         form = EmpresaForm(request.POST, instance=empresa)
@@ -353,45 +332,21 @@ def editar_empresa(request):
     return render(request, 'empresa/editar_empresa.html', {'form': form})
 
 
-# ---------------------
-# Servicios
-# ---------------------
-
 @login_required
 @empresa_required
 def listar_servicios(request):
+    """Lista todos los servicios registrados por la empresa"""
     empresa = request.user.empresa
     servicios = Servicio.objects.filter(empresa=empresa).order_by('-fecha_creacion')
-
     return render(request, 'empresa/servicios/listar_servicios.html', {'servicios': servicios})
 
 
 @login_required
 @empresa_required
 def crear_servicio(request):
-    # Verificar permisos
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder a esta sección.")
-        return redirect('dashboard_cliente')
+    """Formulario para crear un nuevo servicio"""
+    empresa = request.user.empresa
 
-    # Obtener empresa asociada (solo si existe)
-    empresa = getattr(request.user, 'empresa', None)
-
-    # Si no tiene empresa y no es admin, bloquear
-    if not empresa and not (request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes una barbería registrada para crear servicios.")
-        return redirect('listar_servicios')
-
-    # Si el admin quiere crear un servicio, debe seleccionar una empresa existente
-    if request.user.is_superuser or request.user.is_staff:
-        # Si hay al menos una empresa en la base, usar la primera
-        if not empresa:
-            empresa = Empresa.objects.first()
-            if not empresa:
-                messages.error(request, "No existe ninguna barbería registrada para asociar el servicio.")
-                return redirect('listar_servicios')
-
-    # Procesar formulario
     if request.method == 'POST':
         form = ServicioForm(request.POST)
         if form.is_valid():
@@ -400,8 +355,7 @@ def crear_servicio(request):
             servicio.save()
             messages.success(request, 'El servicio fue creado exitosamente.')
             return redirect('listar_servicios')
-        else:
-            messages.error(request, 'Revisa los datos del formulario.')
+        messages.error(request, 'Revisa los datos del formulario.')
     else:
         form = ServicioForm()
 
@@ -411,15 +365,9 @@ def crear_servicio(request):
 @login_required
 @empresa_required
 def editar_servicio(request, id):
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder a esta sección.")
-        return redirect('dashboard_cliente')
-
-    if hasattr(request.user, 'empresa'):
-        empresa = request.user.empresa
-        servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
-    else:
-        servicio = get_object_or_404(Servicio, id=id)
+    """Editar información de un servicio existente"""
+    empresa = request.user.empresa
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
 
     if request.method == 'POST':
         form = ServicioForm(request.POST, instance=servicio)
@@ -429,77 +377,63 @@ def editar_servicio(request, id):
             return redirect('listar_servicios')
     else:
         form = ServicioForm(instance=servicio)
+
     return render(request, 'empresa/servicios/editar_servicio.html', {'form': form, 'servicio': servicio})
 
 
 @login_required
 @empresa_required
 def eliminar_servicio(request, id):
-    if not (hasattr(request.user, 'empresa') or request.user.is_superuser or request.user.is_staff):
-        messages.error(request, "No tienes permisos para acceder a esta sección.")
-        return redirect('dashboard_cliente')
-
-    if hasattr(request.user, 'empresa'):
-        empresa = request.user.empresa
-        servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
-    else:
-        servicio = get_object_or_404(Servicio, id=id)
+    """Confirma y elimina un servicio"""
+    empresa = request.user.empresa
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa)
 
     if request.method == 'POST':
         servicio.delete()
         messages.success(request, 'El servicio fue eliminado correctamente.')
         return redirect('listar_servicios')
+
     return render(request, 'empresa/servicios/eliminar_servicio.html', {'servicio': servicio})
 
 
-#---------------------
-# Clientes (panel empresa)
-#---------------------
+# ============================================================
+# CLIENTES (desde el panel de la empresa)
+# ============================================================
 
 @login_required
 @empresa_required
 def listar_clientes(request):
-    # Solo usuarios que son clientes
+    """Lista todos los clientes registrados en el sistema"""
     clientes = Cliente.objects.select_related('user').order_by('user__username')
-
-    return render(request, 'empresa/clientes/listar_clientes.html', {
-        'clientes': clientes
-    })
+    return render(request, 'empresa/clientes/listar_clientes.html', {'clientes': clientes})
 
 
 @login_required
 @empresa_required
 def editar_cliente_admin(request, id):
+    """Editar la información de un cliente desde el panel de la empresa"""
     cliente = get_object_or_404(Cliente, id=id)
-    user = cliente.user  # relación directa con el usuario
+    user = cliente.user
 
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        telefono = request.POST.get('telefono')
-        activo = 'is_active' in request.POST
-
-        user.username = username
-        user.email = email
-        user.is_active = activo
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        user.is_active = 'is_active' in request.POST
         user.save()
 
-        cliente.telefono = telefono
+        cliente.telefono = request.POST.get('telefono')
         cliente.save()
 
         messages.success(request, "Cliente actualizado correctamente.")
         return redirect('listar_clientes')
 
-    return render(request, 'empresa/clientes/editar_cliente.html', {
-        'cliente': cliente,
-        'user': user
-    })
-
+    return render(request, 'empresa/clientes/editar_cliente.html', {'cliente': cliente, 'user': user})
 
 
 @login_required
 @empresa_required
 def eliminar_cliente_admin(request, id):
+    """Permite eliminar un cliente (y su usuario asociado)"""
     cliente = get_object_or_404(Cliente, id=id)
     user = cliente.user
 
@@ -511,22 +445,21 @@ def eliminar_cliente_admin(request, id):
     return render(request, 'empresa/clientes/eliminar_cliente.html', {'cliente': cliente})
 
 
-#---------------------
-# Disponibilidad
-#---------------------
+# ============================================================
+# DISPONIBILIDAD (horarios de trabajo de la empresa)
+# ============================================================
 
 DIAS_ORDEN = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
 
 
 def ensure_disponibilidad_inicial():
     """
-    Crea 7 filas (lun-dom) si no existen aún, con horario por defecto dividido
-    en jornada de mañana (08:00–12:00) y tarde (14:00–18:00).
-    Activos de lunes a sábado y domingo inactivo. Asumimos UNA empresa.
+    Crea automáticamente las 7 filas (lunes a domingo) con horarios base.
+    Por defecto activa de lunes a sábado y deja domingo inactivo.
     """
     empresa = Empresa.objects.first()
     if not empresa:
-        return  # si aún no hay empresa, no hacemos nada
+        return
 
     existentes = set(Disponibilidad.objects.values_list('dia', flat=True))
     por_crear = [d for d in DIAS_ORDEN if d not in existentes]
@@ -546,14 +479,11 @@ def ensure_disponibilidad_inicial():
 @login_required
 @empresa_required
 def configurar_disponibilidad(request):
-    # Garantiza que existan 7 filas
+    """Permite configurar los horarios de atención (mañana/tarde) por día"""
     ensure_disponibilidad_inicial()
-
-    empresa = request.user.empresa if hasattr(request.user, 'empresa') else Empresa.objects.first()
-    dias = Disponibilidad.objects.filter().order_by('id')  # una sola empresa => no filtramos por empresa
+    dias = Disponibilidad.objects.all().order_by('id')  # solo hay una empresa
 
     if request.method == 'POST':
-        cambios = 0
         for d in dias:
             ini_m = request.POST.get(f'inicio_m_{d.id}')
             fin_m = request.POST.get(f'fin_m_{d.id}')
@@ -561,27 +491,18 @@ def configurar_disponibilidad(request):
             fin_t = request.POST.get(f'fin_t_{d.id}')
             activo = bool(request.POST.get(f'activo_{d.id}', False))
 
-            # Si el día está activo, debe tener horas válidas
-            if activo:
-                if not ini_m or not fin_m or not ini_t or not fin_t:
-                    messages.warning(request, f"Por favor completa los horarios para {d.get_dia_display()} antes de activarlo.")
-                    return redirect('configurar_disponibilidad')
+            if activo and (not ini_m or not fin_m or not ini_t or not fin_t):
+                messages.warning(request, f"Por favor completa los horarios para {d.get_dia_display()} antes de activarlo.")
+                return redirect('configurar_disponibilidad')
 
-            # Asignar valores (vacíos permitidos)
-            d.hora_inicio_m = ini_m if ini_m else None
-            d.hora_fin_m = fin_m if fin_m else None
-            d.hora_inicio_t = ini_t if ini_t else None
-            d.hora_fin_t = fin_t if fin_t else None
+            d.hora_inicio_m = ini_m or None
+            d.hora_fin_m = fin_m or None
+            d.hora_inicio_t = ini_t or None
+            d.hora_fin_t = fin_t or None
             d.activo = activo
             d.save()
-            cambios += 1
 
-        if cambios:
-            messages.success(request, "Disponibilidad actualizada correctamente.")
-        else:
-            messages.info(request, "No hubo cambios para guardar.")
-
+        messages.success(request, "Disponibilidad actualizada correctamente.")
         return redirect('configurar_disponibilidad')
-
 
     return render(request, 'empresa/disponibilidad.html', {'dias': dias})
