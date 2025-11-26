@@ -23,6 +23,7 @@
                 <label for="id_nombre_negocio" class="block text-sm font-medium text-gray-700 mb-1">Nombre del
                     negocio</label>
                 {{ form.nombre_negocio }}
+                {% for error in form.nombre_negocio.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
             </div>
 
             <!-- Campo: direccion -->
@@ -35,6 +36,7 @@
             <div>
                 <label for="id_telefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                 {{ form.telefono }}
+                {% for error in form.telefono.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
             </div>
 
             <div class="flex justify-end pt-4">

@@ -55,13 +55,17 @@
 
       <div class="space-y-3 text-sm">
         {{ form.username|attr:"placeholder:Usuario"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+        {% for error in form.username.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
 
         {{ form.email|attr:"placeholder:Correo electrónico"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+        {% for error in form.email.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
 
         {{ form.telefono|attr:"placeholder:Teléfono"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+        {% for error in form.telefono.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
 
         {{ form.password|attr:"placeholder:Contraseña"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
-      </div>
+        {% for error in form.password.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+      </div>
 
       <button type="submit"
         class="w-full bg-primary text-white py-2.5 rounded-md hover:bg-primaryLight transition font-medium text-sm">

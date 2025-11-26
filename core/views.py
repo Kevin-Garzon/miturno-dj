@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import localtime
+import re
 
 from .forms import RegistroClienteForm, EmpresaForm, ServicioForm, EditarClienteForm
 from .models import Cliente, Empresa, Servicio, Disponibilidad, Cita    
@@ -717,12 +718,36 @@ def editar_cliente_admin(request, id):
     user = cliente.user
 
     if request.method == 'POST':
-        user.username = request.POST.get('username')
-        user.email = request.POST.get('email')
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+
+        # Validar que el username solo tenga letras y espacios
+        patron = r'^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$'
+        if not re.match(patron, username):
+            messages.error(
+                request,
+                "El nombre de usuario solo puede contener letras y espacios (sin números ni símbolos)."
+            )
+            return render(request, 'empresa/clientes/editar_cliente.html', {'cliente': cliente, 'user': user})
+
+        # Validar teléfono solo números
+        if telefono and not telefono.isdigit():
+            messages.error(request, "El teléfono solo puede contener números.")
+            return render(request, 'empresa/clientes/editar_cliente.html', {'cliente': cliente, 'user': user})
+
+        # Opcional: evitar duplicar usernames (igual que en editar_cliente)
+        if User.objects.filter(username=username).exclude(id=user.id).exists():
+            messages.error(request, "Este nombre de usuario ya está en uso.")
+            return render(request, 'empresa/clientes/editar_cliente.html', {'cliente': cliente, 'user': user})
+
+        # Si todo OK, guardar
+        user.username = username
+        user.email = email
         user.is_active = 'is_active' in request.POST
         user.save()
 
-        cliente.telefono = request.POST.get('telefono')
+        cliente.telefono = telefono
         cliente.save()
 
         messages.success(request, "Cliente actualizado correctamente.")

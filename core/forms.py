@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import Cliente, Empresa, Servicio
+import re
 
 # Formulario de registro para Cliente
 class RegistroClienteForm(forms.ModelForm):
@@ -13,6 +14,22 @@ class RegistroClienteForm(forms.ModelForm):
         fields = ['telefono']
         labels = {'telefono': 'Teléfono'}
 
+    # --- VALIDACIONES ---
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip()
+        patron = r'^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$'
+        if not re.match(patron, username):
+            raise forms.ValidationError(
+                "El usuario solo puede contener letras y espacios (sin números ni símbolos)."
+            )
+        return username
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data['telefono'].strip()
+        if not telefono.isdigit():
+            raise forms.ValidationError("El teléfono solo puede contener números.")
+        return telefono
+
 # Formulario para editar perfil de Cliente
 class EditarClienteForm(forms.ModelForm):
     username = forms.CharField(max_length=50)
@@ -21,6 +38,21 @@ class EditarClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = ['telefono']
+
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip()
+        patron = r'^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$'
+        if not re.match(patron, username):
+            raise forms.ValidationError(
+                "El nombre de usuario solo puede contener letras y espacios (sin números ni símbolos)."
+            )
+        return username
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data['telefono'].strip()
+        if not telefono.isdigit():
+            raise forms.ValidationError("El teléfono solo puede contener números.")
+        return telefono
 
 # Formulario para editar Empresa
 class EmpresaForm(forms.ModelForm):
@@ -41,6 +73,22 @@ class EmpresaForm(forms.ModelForm):
                 'placeholder': 'Teléfono'
             }),
         }
+
+    # --- VALIDACIONES ---
+    def clean_nombre_negocio(self):
+        nombre = self.cleaned_data['nombre_negocio'].strip()
+        # Debe tener al menos una letra; no permitir solo números/símbolos
+        if not any(c.isalpha() for c in nombre):
+            raise forms.ValidationError(
+                "El nombre del negocio debe incluir letras; no puede ser solo números o símbolos."
+            )
+        return nombre
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data['telefono'].strip()
+        if not telefono.isdigit():
+            raise forms.ValidationError("El teléfono solo puede contener números.")
+        return telefono
 
 # Formulario para crear/editar Servicio
 class ServicioForm(forms.ModelForm):
@@ -70,3 +118,12 @@ class ServicioForm(forms.ModelForm):
                 'class': 'w-4 h-4 text-primary focus:ring-primary rounded border-gray-300'
             }),
         }
+
+    # --- VALIDACIONES ---
+    def clean_nombre(self):
+        nombre = self.cleaned_data['nombre'].strip()
+        if not any(c.isalpha() for c in nombre):
+            raise forms.ValidationError(
+                "El nombre del servicio debe incluir letras; no puede ser solo números o símbolos."
+            )
+        return nombre
