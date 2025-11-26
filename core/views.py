@@ -159,16 +159,36 @@ def dashboard_cliente(request):
 def dashboard_empresa(request):
     """
     Dashboard de la empresa:
-    Muestra algunos datos de resumen (servicios activos, clientes, etc.)
+    Muestra datos resumidos: servicios activos, citas del día, total de clientes
+    y citas recientes.
     """
     empresa = request.user.empresa
+
+    # Servicios activos
     servicios_activos = empresa.servicios.filter(activo=True).count()
+
+    # Total de clientes
     clientes_total = Cliente.objects.count()
+
+    # Citas de HOY
+    hoy = date.today()
+    citas_hoy = Cita.objects.filter(
+        empresa=empresa,
+        fecha=hoy
+    ).exclude(estado="cancelada").count()
+
+    # Citas recientes (máximo 5), ordenadas por fecha y hora
+    citas_recientes = (
+        Cita.objects.filter(empresa=empresa)
+        .exclude(estado="cancelada")
+        .order_by("-fecha", "-hora_inicio")[:5]
+    )
 
     context = {
         'servicios_activos': servicios_activos,
-        'citas_dia': 0,  # todavía no se ha implementado el módulo de citas
         'clientes_total': clientes_total,
+        'citas_hoy': citas_hoy,
+        'citas_recientes': citas_recientes,
     }
     return render(request, 'dashboard_empresa.html', context)
 
