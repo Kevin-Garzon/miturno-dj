@@ -68,3 +68,31 @@ class Disponibilidad(models.Model):
 
     def __str__(self):
         return f"{self.get_dia_display()} (M: {self.hora_inicio_m}-{self.hora_fin_m} / T: {self.hora_inicio_t}-{self.hora_fin_t})"
+
+
+# Cita / Reserva
+class Cita(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('confirmada', 'Confirmada'),
+        ('cancelada', 'Cancelada'),
+    ]
+
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='citas')
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='citas')
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='citas')
+
+    # Guardamos el día “lógico” (lunes, martes, etc.) y la fecha real
+    dia = models.CharField(max_length=10, choices=Disponibilidad.DIAS_SEMANA)
+    fecha = models.DateField()
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['fecha', 'hora_inicio']
+
+    def __str__(self):
+        return f"Cita de {self.cliente} para {self.servicio} el {self.fecha} a las {self.hora_inicio}"

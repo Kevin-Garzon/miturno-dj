@@ -1,0 +1,70 @@
+{% extends 'layouts/base_clientes.html' %}
+{% block title %}Mis citas{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-6 py-10">
+
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6">Mis citas</h1>
+
+    {% if citas %}
+    <div class="space-y-4">
+
+        {% for cita in citas %}
+        <div class="bg-white border border-gray-200 rounded-md shadow-sm p-7 flex justify-between items-center">
+
+            <div class="space-y-2">
+                <p class="text-xl font-semibold text-gray-900">
+                    {{ cita.servicio.nombre }}
+                </p>
+
+                <p class="text-gray-600 text-sm flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-primary"></i>
+                    {{ cita.fecha|date:"d/m/Y" }} — {{ cita.hora_inicio }} a {{ cita.hora_fin }}
+                </p>
+
+                <p class="text-gray-600 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-store text-primary"></i>
+                    {{ cita.empresa.nombre_negocio }}
+                </p>
+
+                <!-- ESTADO ESTILIZADO -->
+                <p class="text-base text-blue-700">
+                    Estado: {{ cita.get_estado_display }}
+                </p>
+
+            </div>
+
+            <div class="flex flex-col items-end gap-3">
+
+                <!-- Botón ver servicio -->
+                <a href="{% url 'detalle_servicio' cita.servicio.id %}" class="px-4 py-2 w-32 text-center text-sm font-medium rounded-md
+               bg-blue-100 text-blue-600 border border-blue-300
+               hover:bg-blue-200 hover:text-blue-700 transition">
+                    Ver servicio
+                </a>
+
+                <!-- Botón cancelar -->
+                <form action="{% url 'cancelar_cita' cita.id %}" method="post"
+                    onsubmit="return confirm('¿Seguro que deseas cancelar esta cita?');">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 w-32 text-center text-sm font-medium rounded-md
+                       bg-red-100 text-red-600 border border-red-300
+                       hover:bg-red-200 hover:text-red-700 transition">
+                        Cancelar cita
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+    <p class="text-gray-500 text-sm">No tienes citas pendientes.</p>
+    {% endif %}
+
+</main>
+{% endblock %}

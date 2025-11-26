@@ -42,8 +42,7 @@
                     <i class="fa-solid fa-users text-xs"></i> Clientes
                 </a>
 
-                <a href="#"
-                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'citas' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                <a href="{% url 'listar_citas' %}" class="flex items-center gap-1 {% if request.resolver_match.url_name == 'listar_citas' %}text-primary font-medium {% else %}text-gray-500 hover:text-primary{% endif %} transition">
                     <i class="fa-solid fa-calendar-check text-xs"></i> Citas
                 </a>
 

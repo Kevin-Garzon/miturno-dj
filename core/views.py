@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import localtime
 
 from .forms import RegistroClienteForm, EmpresaForm, ServicioForm, EditarClienteForm
-from .models import Cliente, Empresa, Servicio, Disponibilidad
+from .models import Cliente, Empresa, Servicio, Disponibilidad, Cita    
 
 
 # ============================================================
@@ -138,10 +138,19 @@ def dashboard_cliente(request):
     """
     empresa = Empresa.objects.first()
     servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by('nombre') if empresa else []
-    
+
+    proximas_citas = 0
+    if hasattr(request.user, 'cliente'):
+        hoy = datetime.today().date()
+        proximas_citas = Cita.objects.filter(
+            cliente=request.user.cliente,
+            fecha__gte=hoy
+        ).exclude(estado='cancelada').count()
+
     return render(request, 'dashboard_cliente.html', {
         'empresa': empresa,
-        'servicios': servicios
+        'servicios': servicios,
+        'proximas_citas': proximas_citas,
     })
 
 
@@ -228,6 +237,28 @@ def editar_cliente(request):
 # ============================================================
 # SERVICIOS (vista detalle y horarios disponibles para cliente)
 # ============================================================
+def get_next_date_for_day(dia_slug):
+    """Devuelve la fecha (date) de la próxima ocurrencia de ese día de la semana."""
+    dia_slug = dia_slug.lower()
+    mapa = {
+        'lunes': 0,
+        'martes': 1,
+        'miercoles': 2,
+        'miércoles': 2,
+        'jueves': 3,
+        'viernes': 4,
+        'sabado': 5,
+        'sábado': 5,
+        'domingo': 6,
+    }
+    objetivo = mapa.get(dia_slug)
+    hoy = datetime.today().date()
+
+    if objetivo is None:
+        return hoy
+
+    diff = (objetivo - hoy.weekday()) % 7
+    return hoy + timedelta(days=diff)
 
 @login_required
 @cliente_required
@@ -273,7 +304,7 @@ def detalle_servicio(request, id):
 @login_required
 @cliente_required
 def horarios_servicio(request, id, dia):
-    """Muestra las franjas de un día específico"""
+    """Muestra las franjas de un día específico (ocultando horas pasadas y franjas ocupadas)."""
     empresa = Empresa.objects.first()
     servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
     disponibilidad = Disponibilidad.objects.filter(empresa=empresa, dia=dia, activo=True).first()
@@ -282,22 +313,64 @@ def horarios_servicio(request, id, dia):
     if disponibilidad:
         duracion = servicio.duracion
 
-        # Mañana
+        # --- Fecha real del día seleccionado ---
+        fecha_real = get_next_date_for_day(dia)
+        hoy = datetime.today().date()
+
+        # --- Determinar si debe ocultar horas pasadas ---
+        hora_actual_sistema = datetime.now().time() if fecha_real == hoy else None
+
+        # --- OBTENER CITAS OCUPADAS ---
+        citas_ocupadas = Cita.objects.filter(
+            empresa=empresa,
+            fecha=fecha_real
+        ).exclude(estado='cancelada')
+
+        franjas_ocupadas = set([
+            f"{c.hora_inicio.strftime('%H:%M')} - {c.hora_fin.strftime('%H:%M')}"
+            for c in citas_ocupadas
+        ])
+
+        # --- MAÑANA ---
         if disponibilidad.hora_inicio_m and disponibilidad.hora_fin_m:
-            hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_m)
-            hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_m)
+            hora_actual = datetime.combine(fecha_real, disponibilidad.hora_inicio_m)
+            hora_fin = datetime.combine(fecha_real, disponibilidad.hora_fin_m)
+
             while hora_actual + timedelta(minutes=duracion) <= hora_fin:
                 fin_slot = hora_actual + timedelta(minutes=duracion)
-                franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                inicio_time = hora_actual.time()
+                texto_franja = f"{inicio_time.strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}"
+
+                # Omitir horas pasadas SOLO si es hoy
+                if hora_actual_sistema and inicio_time <= hora_actual_sistema:
+                    hora_actual = fin_slot
+                    continue
+
+                # Omitir franjas ocupadas
+                if texto_franja not in franjas_ocupadas:
+                    franjas.append(texto_franja)
+
                 hora_actual = fin_slot
 
-        # Tarde
+        # --- TARDE ---
         if disponibilidad.hora_inicio_t and disponibilidad.hora_fin_t:
-            hora_actual = datetime.combine(datetime.today(), disponibilidad.hora_inicio_t)
-            hora_fin = datetime.combine(datetime.today(), disponibilidad.hora_fin_t)
+            hora_actual = datetime.combine(fecha_real, disponibilidad.hora_inicio_t)
+            hora_fin = datetime.combine(fecha_real, disponibilidad.hora_fin_t)
+
             while hora_actual + timedelta(minutes=duracion) <= hora_fin:
                 fin_slot = hora_actual + timedelta(minutes=duracion)
-                franjas.append(f"{hora_actual.time().strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}")
+                inicio_time = hora_actual.time()
+                texto_franja = f"{inicio_time.strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}"
+
+                # Omitir horas pasadas SOLO si es hoy
+                if hora_actual_sistema and inicio_time <= hora_actual_sistema:
+                    hora_actual = fin_slot
+                    continue
+
+                # Omitir franjas ocupadas
+                if texto_franja not in franjas_ocupadas:
+                    franjas.append(texto_franja)
+
                 hora_actual = fin_slot
 
     return render(request, 'cliente/horarios_servicio.html', {
@@ -307,6 +380,124 @@ def horarios_servicio(request, id, dia):
         'disponibilidad': disponibilidad,
         'franjas': franjas,
     })
+
+
+
+@login_required
+@cliente_required
+def resumen_cita(request, id, dia):
+    """Muestra un resumen antes de confirmar la cita"""
+    empresa = Empresa.objects.first()
+    servicio = get_object_or_404(Servicio, id=id, empresa=empresa, activo=True)
+    cliente = request.user.cliente
+
+    hora_range = request.GET.get('hora')
+    if not hora_range:
+        messages.error(request, "Debes seleccionar un horario válido.")
+        return redirect('horarios_servicio', id=id, dia=dia)
+
+    try:
+        inicio_str, fin_str = [h.strip() for h in hora_range.split('-')]
+    except ValueError:
+        messages.error(request, "Formato de horario no válido.")
+        return redirect('horarios_servicio', id=id, dia=dia)
+
+    fecha = get_next_date_for_day(dia)
+    fecha_iso = fecha.strftime("%Y-%m-%d")
+
+    context = {
+        'servicio': servicio,
+        'empresa': empresa,
+        'cliente': cliente,
+        'dia': dia,
+        'fecha': fecha,
+        'fecha_iso': fecha_iso,
+        'hora_inicio': inicio_str,
+        'hora_fin': fin_str,
+    }
+    return render(request, 'cliente/resumen_cita.html', context)
+
+
+@login_required
+@cliente_required
+def confirmar_cita(request):
+    """Recibe los datos del resumen y crea la cita"""
+    if request.method != 'POST':
+        return redirect('dashboard_cliente')
+
+    empresa = Empresa.objects.first()
+    cliente = request.user.cliente
+
+    servicio_id = request.POST.get('servicio_id')
+    fecha_str = request.POST.get('fecha')
+    dia = request.POST.get('dia')
+    hora_inicio_str = request.POST.get('hora_inicio')
+    hora_fin_str = request.POST.get('hora_fin')
+
+    servicio = get_object_or_404(Servicio, id=servicio_id, empresa=empresa, activo=True)
+
+    try:
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        hora_inicio = datetime.strptime(hora_inicio_str, "%H:%M").time()
+        hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
+    except (TypeError, ValueError):
+        messages.error(request, "Los datos de la cita no son válidos.")
+        return redirect('horarios_servicio', id=servicio.id, dia=dia)
+
+    # Verificar que no exista una cita en el mismo horario
+    ya_ocupado = Cita.objects.filter(
+        empresa=empresa,
+        fecha=fecha,
+        hora_inicio=hora_inicio
+    ).exclude(estado='cancelada').exists()
+
+    if ya_ocupado:
+        messages.error(request, "Ese horario ya no está disponible. Por favor selecciona otra franja.")
+        return redirect('horarios_servicio', id=servicio.id, dia=dia)
+
+    Cita.objects.create(
+        cliente=cliente,
+        empresa=empresa,
+        servicio=servicio,
+        dia=dia,
+        fecha=fecha,
+        hora_inicio=hora_inicio,
+        hora_fin=hora_fin,
+        estado='pendiente',
+    )
+
+    messages.success(request, "Tu cita ha sido agendada correctamente.")
+    return redirect('dashboard_cliente')
+
+
+@login_required
+@cliente_required
+def mis_citas(request):
+    cliente = request.user.cliente
+    hoy = datetime.today().date()
+
+    citas = Cita.objects.filter(
+        cliente=cliente,
+        fecha__gte=hoy
+    ).exclude(estado='cancelada').order_by('fecha', 'hora_inicio')
+
+    return render(request, 'cliente/mis_citas.html', {
+        'citas': citas
+    })
+
+
+@login_required
+@cliente_required
+def cancelar_cita(request, id):
+    cliente = request.user.cliente
+    cita = get_object_or_404(Cita, id=id, cliente=cliente)
+
+    cita.estado = 'cancelada'
+    cita.save()
+
+    messages.success(request, "Tu cita fue cancelada correctamente.")
+    return redirect('mis_citas')
+
 
 
 # ============================================================
@@ -394,6 +585,96 @@ def eliminar_servicio(request, id):
         return redirect('listar_servicios')
 
     return render(request, 'empresa/servicios/eliminar_servicio.html', {'servicio': servicio})
+
+
+@login_required
+@empresa_required
+def listar_citas_empresa(request):
+    empresa = request.user.empresa
+    
+    # ------------------------------------
+    #   LECTURA DE FILTROS
+    # ------------------------------------
+    filtro_fecha = request.GET.get("fecha")      # hoy, manana, semana, mes
+    filtro_estado = request.GET.get("estado")    # pendiente, confirmada, cancelada
+    filtro_cliente = request.GET.get("cliente")  # id del cliente
+    
+    hoy = date.today()
+    citas = Cita.objects.filter(empresa=empresa).order_by("fecha", "hora_inicio")
+
+    # ------------------------------------
+    #   FILTRO POR FECHA
+    # ------------------------------------
+    if filtro_fecha == "hoy":
+        citas = citas.filter(fecha=hoy)
+
+    elif filtro_fecha == "manana":
+        citas = citas.filter(fecha=hoy + timedelta(days=1))
+
+    elif filtro_fecha == "semana":
+        citas = citas.filter(fecha__range=(hoy, hoy + timedelta(days=7)))
+
+    elif filtro_fecha == "mes":
+        citas = citas.filter(fecha__month=hoy.month, fecha__year=hoy.year)
+
+    # ------------------------------------
+    #   FILTRO POR ESTADO
+    # ------------------------------------
+    if filtro_estado in ["pendiente", "confirmada", "cancelada"]:
+        citas = citas.filter(estado=filtro_estado)
+
+    # ------------------------------------
+    #   FILTRO POR CLIENTE
+    # ------------------------------------
+    if filtro_cliente:
+        citas = citas.filter(cliente_id=filtro_cliente)
+
+    # Lista de clientes para el dropdown
+    clientes = Cliente.objects.order_by("user__username")
+
+    context = {
+        "citas": citas,
+        "clientes": clientes,
+        "filtro_fecha": filtro_fecha,
+        "filtro_estado": filtro_estado,
+        "filtro_cliente": filtro_cliente,
+    }
+    return render(request, "empresa/citas/listar_citas.html", context)
+
+
+
+@login_required
+@empresa_required
+def confirmar_cita_empresa(request, id):
+    empresa = request.user.empresa
+    cita = get_object_or_404(Cita, id=id, empresa=empresa)
+
+    if cita.estado != "pendiente":
+        messages.warning(request, "Esta cita no se puede confirmar.")
+        return redirect('listar_citas')
+
+    cita.estado = "confirmada"
+    cita.save()
+
+    messages.success(request, "La cita ha sido confirmada correctamente.")
+    return redirect('listar_citas')
+
+
+@login_required
+@empresa_required
+def cancelar_cita_empresa(request, id):
+    empresa = request.user.empresa
+    cita = get_object_or_404(Cita, id=id, empresa=empresa)
+
+    if cita.estado == "cancelada":
+        messages.info(request, "La cita ya estaba cancelada.")
+        return redirect('listar_citas')
+
+    cita.estado = "cancelada"
+    cita.save()
+
+    messages.success(request, "La cita ha sido cancelada correctamente.")
+    return redirect('listar_citas')
 
 
 # ============================================================

@@ -1,0 +1,69 @@
+{% extends 'layouts/base_clientes.html' %}
+{% block title %}Confirmar cita — {{ servicio.nombre }}{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto px-6 py-10">
+
+    <a href="{% url 'horarios_servicio' servicio.id dia %}" class="text-primary text-sm mb-6 inline-flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Volver a horarios
+    </a>
+
+    <section class="bg-white border border-gray-200 rounded-md shadow-sm p-6 mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-4">Resumen de tu cita</h1>
+
+        <div class="grid gap-4 text-sm text-gray-700">
+            <div>
+                <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Cliente</p>
+                <p class="font-medium">{{ cliente.user.get_full_name|default:cliente.user.username }}</p>
+                <p class="text-gray-500">{{ cliente.user.email }} · {{ cliente.telefono }}</p>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Servicio</p>
+                <p class="font-medium">{{ servicio.nombre }}</p>
+                <p class="text-gray-500">{{ servicio.descripcion|default:"Sin descripción" }}</p>
+                <p class="mt-1 flex flex-wrap gap-4 text-gray-600">
+                    <span><i class="fa-regular fa-clock text-primary"></i> {{ servicio.duracion }} min</span>
+                    <span><i class="fa-solid fa-dollar-sign text-primary"></i> ${{ servicio.precio }}</span>
+                </p>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Fecha y hora</p>
+                <p class="font-medium">
+                    {{ dia|capfirst }} {{ fecha|date:"d/m/Y" }} · {{ hora_inicio }} - {{ hora_fin }}
+                </p>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Negocio</p>
+                <p class="font-medium">{{ empresa.nombre_negocio }}</p>
+                <p class="text-gray-500">{{ empresa.direccion }} · {{ empresa.telefono }}</p>
+            </div>
+        </div>
+    </section>
+
+    <form method="post" action="{% url 'confirmar_cita' %}" class="bg-white border border-gray-200 rounded-md shadow-sm p-6 flex items-center justify-between gap-4">
+        {% csrf_token %}
+        <div class="text-sm text-gray-600">
+            <p class="font-medium text-gray-900">¿Confirmar esta cita?</p>
+            <p class="text-gray-500 text-xs mt-1">Al confirmar, recibirás el registro en tu panel de cliente.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'horarios_servicio' servicio.id dia %}" class="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                Cancelar
+            </a>
+            <button type="submit" class="px-5 py-2 text-sm rounded-md bg-primary text-white font-semibold hover:bg-primary/90">
+                Confirmar cita
+            </button>
+        </div>
+
+        <input type="hidden" name="servicio_id" value="{{ servicio.id }}">
+        <input type="hidden" name="fecha" value="{{ fecha_iso }}">
+        <input type="hidden" name="dia" value="{{ dia }}">
+        <input type="hidden" name="hora_inicio" value="{{ hora_inicio }}">
+        <input type="hidden" name="hora_fin" value="{{ hora_fin }}">
+    </form>
+
+</main>
+{% endblock %}
