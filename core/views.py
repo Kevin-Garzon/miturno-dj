@@ -513,6 +513,12 @@ def cancelar_cita(request, id):
     cliente = request.user.cliente
     cita = get_object_or_404(Cita, id=id, cliente=cliente)
 
+    # Bloquear si ya fue confirmada por la empresa
+    if cita.estado == 'confirmada':
+        messages.error(request, "No puedes cancelar una cita que ya fue confirmada por la barbería.")
+        return redirect('mis_citas')
+
+    # Cancelar solo si estaba pendiente
     cita.estado = 'cancelada'
     cita.save()
 
