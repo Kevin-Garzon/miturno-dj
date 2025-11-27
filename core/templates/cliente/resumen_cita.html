@@ -2,7 +2,7 @@
 {% block title %}Confirmar cita — {{ servicio.nombre }}{% endblock %}
 
 {% block content %}
-<main class="max-w-3xl mx-auto px-6 py-10">
+<main class="max-w-2xl mx-auto px-6 py-10">
 
     <a href="{% url 'horarios_servicio' servicio.id dia %}" class="text-primary text-sm mb-6 inline-flex items-center gap-2">
         <i class="fa-solid fa-arrow-left"></i> Volver a horarios
@@ -43,19 +43,21 @@
         </div>
     </section>
 
-    <form method="post" action="{% url 'confirmar_cita' %}" class="bg-white border border-gray-200 rounded-md shadow-sm p-6 flex items-center justify-between gap-4">
+    <form method="post" action="{% url 'confirmar_cita' %}" class="bg-white border border-gray-200 rounded-md shadow-sm p-6">
         {% csrf_token %}
-        <div class="text-sm text-gray-600">
-            <p class="font-medium text-gray-900">¿Confirmar esta cita?</p>
-            <p class="text-gray-500 text-xs mt-1">Al confirmar, recibirás el registro en tu panel de cliente.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'horarios_servicio' servicio.id dia %}" class="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                Cancelar
-            </a>
-            <button type="submit" class="px-5 py-2 text-sm rounded-md bg-primary text-white font-semibold hover:bg-primary/90">
-                Confirmar cita
-            </button>
+        <div class="flex flex-col items-center gap-4">
+            <div class="text-sm text-gray-600 text-center">
+                <p class="font-medium text-gray-900">¿Confirmar esta cita?</p>
+                <p class="text-gray-500 text-xs mt-1">Al confirmar, recibirás el registro en tu panel de cliente.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs">
+                <a href="{% url 'horarios_servicio' servicio.id dia %}" class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-center">
+                    Cancelar
+                </a>
+                <button type="submit" class="w-full px-5 py-2 text-sm rounded-md bg-primary text-white font-semibold hover:bg-primary/90 text-center">
+                    Confirmar cita
+                </button>
+            </div>
         </div>
 
         <input type="hidden" name="servicio_id" value="{{ servicio.id }}">
