@@ -161,7 +161,7 @@ def dashboard_empresa(request):
     """
     Dashboard de la empresa:
     Muestra datos resumidos: servicios activos, citas del día, total de clientes
-    y citas recientes.
+    y próximas citas.
     """
     empresa = request.user.empresa
 
@@ -171,18 +171,24 @@ def dashboard_empresa(request):
     # Total de clientes
     clientes_total = Cliente.objects.count()
 
-    # Citas de HOY
+    # Citas de HOY (solo pendientes y confirmadas)
     hoy = date.today()
-    citas_hoy = Cita.objects.filter(
-        empresa=empresa,
-        fecha=hoy
-    ).exclude(estado="cancelada").count()
+    citas_hoy = (
+        Cita.objects.filter(
+            empresa=empresa,
+            fecha=hoy,
+            estado__in=["pendiente", "confirmada"]
+        ).count()
+    )
 
-    # Citas recientes (máximo 5), ordenadas por fecha y hora
+    # Próximas citas (máximo 10), orden por fecha y hora (ascendente)
     citas_recientes = (
-        Cita.objects.filter(empresa=empresa)
-        .exclude(estado="cancelada")
-        .order_by("-fecha", "-hora_inicio")[:5]
+        Cita.objects.filter(
+            empresa=empresa,
+            estado__in=["pendiente", "confirmada"],
+            fecha__gte=hoy
+        )
+        .order_by("fecha", "hora_inicio")[:10]
     )
 
     context = {
@@ -192,6 +198,7 @@ def dashboard_empresa(request):
         'citas_recientes': citas_recientes,
     }
     return render(request, 'dashboard_empresa.html', context)
+
 
 
 # ============================================================
@@ -347,10 +354,18 @@ def horarios_servicio(request, id, dia):
             fecha=fecha_real
         ).exclude(estado='cancelada')
 
-        franjas_ocupadas = set([
-            f"{c.hora_inicio.strftime('%H:%M')} - {c.hora_fin.strftime('%H:%M')}"
+        # Convertimos citas a rangos de tiempo reales
+        rangos_ocupados = [
+            (c.hora_inicio, c.hora_fin)
             for c in citas_ocupadas
-        ])
+        ]
+
+        # Función para detectar solapamiento
+        def solapada(inicio, fin):
+            for ini_occ, fin_occ in rangos_ocupados:
+                if inicio < fin_occ and fin > ini_occ:
+                    return True
+            return False
 
         # --- MAÑANA ---
         if disponibilidad.hora_inicio_m and disponibilidad.hora_fin_m:
@@ -360,16 +375,16 @@ def horarios_servicio(request, id, dia):
             while hora_actual + timedelta(minutes=duracion) <= hora_fin:
                 fin_slot = hora_actual + timedelta(minutes=duracion)
                 inicio_time = hora_actual.time()
-                texto_franja = f"{inicio_time.strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}"
+                fin_time = fin_slot.time()
 
                 # Omitir horas pasadas SOLO si es hoy
                 if hora_actual_sistema and inicio_time <= hora_actual_sistema:
                     hora_actual = fin_slot
                     continue
 
-                # Omitir franjas ocupadas
-                if texto_franja not in franjas_ocupadas:
-                    franjas.append(texto_franja)
+                # Omitir solapamiento
+                if not solapada(inicio_time, fin_time):
+                    franjas.append(f"{inicio_time.strftime('%H:%M')} - {fin_time.strftime('%H:%M')}")
 
                 hora_actual = fin_slot
 
@@ -381,16 +396,16 @@ def horarios_servicio(request, id, dia):
             while hora_actual + timedelta(minutes=duracion) <= hora_fin:
                 fin_slot = hora_actual + timedelta(minutes=duracion)
                 inicio_time = hora_actual.time()
-                texto_franja = f"{inicio_time.strftime('%H:%M')} - {fin_slot.time().strftime('%H:%M')}"
+                fin_time = fin_slot.time()
 
                 # Omitir horas pasadas SOLO si es hoy
                 if hora_actual_sistema and inicio_time <= hora_actual_sistema:
                     hora_actual = fin_slot
                     continue
 
-                # Omitir franjas ocupadas
-                if texto_franja not in franjas_ocupadas:
-                    franjas.append(texto_franja)
+                # Omitir solapamiento
+                if not solapada(inicio_time, fin_time):
+                    franjas.append(f"{inicio_time.strftime('%H:%M')} - {fin_time.strftime('%H:%M')}")
 
                 hora_actual = fin_slot
 
@@ -465,17 +480,26 @@ def confirmar_cita(request):
         messages.error(request, "Los datos de la cita no son válidos.")
         return redirect('horarios_servicio', id=servicio.id, dia=dia)
 
-    # Verificar que no exista una cita en el mismo horario
-    ya_ocupado = Cita.objects.filter(
+    # ================================
+    # VALIDACIÓN DE SOLAPAMIENTO REAL
+    # ================================
+    citas_existentes = Cita.objects.filter(
         empresa=empresa,
-        fecha=fecha,
-        hora_inicio=hora_inicio
-    ).exclude(estado='cancelada').exists()
+        fecha=fecha
+    ).exclude(estado="cancelada")
 
-    if ya_ocupado:
-        messages.error(request, "Ese horario ya no está disponible. Por favor selecciona otra franja.")
-        return redirect('horarios_servicio', id=servicio.id, dia=dia)
+    for c in citas_existentes:
+        ini_occ = c.hora_inicio
+        fin_occ = c.hora_fin
 
+        # Si se solapan, entonces no se puede reservar
+        if hora_inicio < fin_occ and hora_fin > ini_occ:
+            messages.error(request, "Ese horario ya no está disponible. Por favor selecciona otra franja.")
+            return redirect('horarios_servicio', id=servicio.id, dia=dia)
+
+    # ================================
+    # Si pasa validación → crear la cita
+    # ================================
     Cita.objects.create(
         cliente=cliente,
         empresa=empresa,
