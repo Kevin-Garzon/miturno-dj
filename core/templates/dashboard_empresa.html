@@ -21,7 +21,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm text-gray-500">Citas del día</p>
-          <h2 class="text-3xl font-semibold text-primary mt-1">0</h2>
+          <h2 class="text-3xl font-semibold text-primary mt-1">{{ citas_hoy }}</h2>
         </div>
         <i class="fa-solid fa-calendar-check text-gray-400 text-2xl"></i>
       </div>
@@ -67,7 +67,37 @@
           </tr>
         </thead>
         <tbody>
+          {% if citas_recientes %}
+          {% for cita in citas_recientes %}
           <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+            <td class="py-3 px-6">
+              {{ cita.cliente.user.username }}
+            </td>
+            <td class="py-3 px-6">
+              {{ cita.servicio.nombre }}
+            </td>
+            <td class="py-3 px-6">
+              {{ cita.fecha|date:"d/m/Y" }} — {{ cita.hora_inicio|time:"H:i" }} 
+            </td>
+            <td class="py-3 px-6">
+              {% if cita.estado == 'pendiente' %}
+              <span class="inline-flex items-center gap-1 text-blue-600 font-medium">
+                <i class="fa-solid fa-circle text-[8px]"></i> Pendiente
+              </span>
+              {% elif cita.estado == 'confirmada' %}
+              <span class="inline-flex items-center gap-1 text-green-600 font-medium">
+                <i class="fa-solid fa-circle text-[8px]"></i> Confirmada
+              </span>
+              {% else %}
+              <span class="inline-flex items-center gap-1 text-red-600 font-medium">
+                <i class="fa-solid fa-circle text-[8px]"></i> Cancelada
+              </span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr class="border-b border-gray-100">
             <td class="py-3 px-6">Sin registros</td>
             <td class="py-3 px-6">-</td>
             <td class="py-3 px-6">-</td>
@@ -77,6 +107,7 @@
               </span>
             </td>
           </tr>
+          {% endif %}
         </tbody>
       </table>
     </div>

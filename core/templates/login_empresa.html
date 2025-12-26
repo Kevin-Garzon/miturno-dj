@@ -3,61 +3,188 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión — Barbería</title>
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
 
   <style>
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="tel"] {
-    width: 100%;
-    border: 1px solid #d1d5db; /* gray-300 */
-    border-radius: 6px;
-    padding: 0.6rem 0.75rem;
-    font-size: 0.875rem; /* text-sm */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
+    /* estilos */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-  input:focus {
-    outline: none;
-    border-color: #2563eb; /* primary */
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
-  }
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
 
-  label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151; /* gray-700 */
-  }
-</style>
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+    }
 
+    /* === responsive === */
+    
+    /* Mobile First (por defaultt) - Hasta 767px */
+    .login-container {
+      width: 100%;
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+
+    .login-title {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-input {
+      font-size: 16px; /* Previene zoom en iOS */
+    }
+
+    .info-text {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    /* Tablet - 768px a 1023px */
+    @media (min-width: 768px) {
+      .login-container {
+        width: 28rem;
+        margin: 2rem auto;
+        padding: 2rem;
+      }
+
+      .login-title {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-input {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+      }
+
+      .login-button {
+        padding: 0.75rem;
+        font-size: 1rem;
+      }
+
+      .info-text {
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+    }
+
+    /* Desktop - 1024px a 1279px */
+    @media (min-width: 1024px) {
+      .login-container {
+        width: 32rem;
+        padding: 2.5rem;
+      }
+
+      .login-title {
+        font-size: 1.75rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .form-space {
+        gap: 1.5rem;
+      }
+    }
+
+    /* Large Desktop - 1280px+ */
+    @media (min-width: 1280px) {
+      .login-container {
+        width: 36rem;
+        padding: 3rem;
+      }
+
+      .login-title {
+        font-size: 2rem;
+      }
+    }
+
+    /* celularespeuqeños - Hasta 360px */
+    @media (max-width: 360px) {
+      .login-container {
+        margin: 0.5rem;
+        padding: 1rem;
+      }
+
+      .login-title {
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-input {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+
+      .login-button {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .info-text {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* altura especifica para dispositivos/celulares muy pequeños */
+    @media (max-height: 600px) {
+      body {
+        align-items: flex-start;
+        padding-top: 1rem;
+      }
+      
+      .login-container {
+        margin: 1rem auto;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
-  <div class="bg-white border border-gray-200 shadow-md p-8 rounded-md w-full max-w-md">
-    <h2 class="text-xl font-poppins font-semibold text-dark text-center mb-6">
+<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen p-4">
+  <div class="login-container bg-white border border-gray-200 shadow-lg rounded-xl">
+    <h2 class="login-title font-poppins font-semibold text-dark text-center">
       <i class="fa-solid fa-shop text-primary mr-2"></i> Iniciar sesión — Barbería
     </h2>
 
-    <form method="POST" class="space-y-4">
+    <form method="POST" class="form-space space-y-4 md:space-y-6">
       {% csrf_token %}
-      <input type="text" name="username" placeholder="Usuario"
-        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm">
-      <input type="password" name="password" placeholder="Contraseña"
-        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm">
+      <div>
+        <input type="text" name="username" placeholder="Usuario" 
+               class="form-input w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none">
+      </div>
+      
+      <div>
+        <input type="password" name="password" placeholder="Contraseña" 
+               class="form-input w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none">
+      </div>
 
       <button type="submit"
-        class="w-full bg-primary text-white py-2.5 rounded-md hover:bg-primaryLight transition font-medium text-sm">
+              class="w-full bg-primary text-white py-3 sm:py-3.5 rounded-lg hover:bg-primaryLight transition-all font-medium text-sm sm:text-base shadow-md hover:shadow-lg duration-300">
         Ingresar
       </button>
     </form>
 
-    <p class="text-center text-grayMedium mt-6 text-sm">
-      ¿No tienes cuenta de empresa? <br>
-      <span class="text-gray-500">Contacta con el administrador del sistema</span>
+    <p class="info-text text-center text-grayMedium mt-6">
+      ¿No tienes cuenta de empresa? <br class="block sm:hidden">
+      <span class="text-gray-500 block mt-1">Contacta con el administrador del sistema</span>
     </p>
   </div>
 

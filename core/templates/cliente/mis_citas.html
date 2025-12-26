@@ -1,0 +1,73 @@
+{% extends 'layouts/base_clientes.html' %}
+{% block title %}Mis citas{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6">Mis citas</h1>
+
+    {% if citas %}
+    <div class="space-y-4">
+
+        {% for cita in citas %}
+        <div class="bg-white border border-gray-200 rounded-md shadow-sm p-5 sm:p-7 
+                    flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+
+            <!-- Información -->
+            <div class="space-y-2 flex-1">
+                <p class="text-xl font-semibold text-gray-900">
+                    {{ cita.servicio.nombre }}
+                </p>
+
+                <p class="text-gray-600 text-sm flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-primary"></i>
+                    {{ cita.fecha|date:"d/m/Y" }} — {{ cita.hora_inicio|time:"H:i" }} a {{ cita.hora_fin|time:"H:i" }}
+                </p>
+
+                <p class="text-gray-600 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-store text-primary"></i>
+                    {{ cita.empresa.nombre_negocio }}
+                </p>
+
+                {% if cita.estado == 'confirmada' %}
+                <p class="text-base font-medium text-green-700">Estado: {{ cita.get_estado_display }}</p>
+                {% elif cita.estado == 'cancelada' %}
+                <p class="text-base font-medium text-red-700">Estado: {{ cita.get_estado_display }}</p>
+                {% else %}
+                <p class="text-base font-medium text-blue-700">Estado: {{ cita.get_estado_display }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Botones -->
+            <div class="flex flex-col items-stretch sm:items-end gap-3 w-full sm:w-auto">
+
+                <a href="{% url 'detalle_servicio' cita.servicio.id %}" class="px-4 py-2 w-full sm:w-32 text-center text-sm font-medium rounded-md
+                          bg-blue-100 text-blue-600 border border-blue-300
+                          hover:bg-blue-200 hover:text-blue-700 transition">
+                    Ver servicio
+                </a>
+
+                {% if cita.estado == 'pendiente' %}
+                <form action="{% url 'cancelar_cita' cita.id %}" method="post"
+                    onsubmit="return confirm('¿Seguro que deseas cancelar esta cita?');">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 w-full sm:w-32 text-center text-sm font-medium rounded-md
+                               bg-red-100 text-red-600 border border-red-300
+                               hover:bg-red-200 hover:text-red-700 transition">
+                        Cancelar cita
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+    <p class="text-gray-500 text-sm">No tienes citas pendientes.</p>
+    {% endif %}
+
+</main>
+{% endblock %}

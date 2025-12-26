@@ -32,6 +32,7 @@
             <div>
                 <label for="id_nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre del servicio</label>
                 {{ form.nombre }}
+                {% for error in form.nombre.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
             </div>
 
             <div>
@@ -44,10 +45,12 @@
                     <label for="id_duracion" class="block text-sm font-medium text-gray-700 mb-1">Duración
                         (minutos)</label>
                     {{ form.duracion }}
+                    {% for error in form.duracion.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
                 </div>
                 <div>
                     <label for="id_precio" class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
                     {{ form.precio }}
+                    {% for error in form.precio.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
                 </div>
             </div>
 

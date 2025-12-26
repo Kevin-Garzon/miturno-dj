@@ -5,8 +5,11 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro Cliente — MiTurno</title>
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
 
   <style>
     input[type="text"],
@@ -15,18 +18,26 @@
     input[type="tel"] {
       width: 100%;
       border: 1px solid #d1d5db;
-      /* gray-300 */
       border-radius: 6px;
-      padding: 0.6rem 0.75rem;
-      font-size: 0.875rem;
-      /* text-sm */
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Para móviles - prevenir zoom en iOS */
+    @media (max-width: 768px) {
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="tel"] {
+        font-size: 16px;
+        padding: 0.875rem 1rem;
+      }
     }
 
     input:focus {
       outline: none;
       border-color: #2563eb;
-      /* primary */
       box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
     }
 
@@ -36,45 +47,87 @@
       font-size: 0.875rem;
       font-weight: 500;
       color: #374151;
-      /* gray-700 */
       display: none;
     }
-  </style>
 
+    .form-container {
+      width: 100%;
+      max-width: 28rem;
+      margin: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .form-container {
+        margin: 0.5rem;
+      }
+    }
+
+    /* Mejorar legibilidad en móviles pequeños */
+    @media (max-width: 360px) {
+      .form-container {
+        margin: 0.25rem;
+      }
+      
+      .title {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
-  <div class="bg-white border border-gray-200 shadow-md p-8 rounded-md w-full max-w-md">
-    <h2 class="text-xl font-poppins font-semibold text-dark text-center mb-6">
-      <i class="fa-solid fa-user-plus text-primary mr-2"></i> Crear cuenta como Cliente
+<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen p-4">
+  <div class="form-container bg-white border border-gray-200 shadow-lg rounded-xl p-6 sm:p-8">
+    <h2 class="title text-xl sm:text-2xl font-poppins font-semibold text-dark text-center mb-6">
+          Crear cuenta como Cliente
     </h2>
 
-    <form method="POST" class="space-y-4">
+    <form method="POST" class="space-y-4 sm:space-y-5">
       {% csrf_token %}
       {{ form.non_field_errors }}
 
-      <div class="space-y-3 text-sm">
-        {{ form.username|attr:"placeholder:Usuario"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+      <div class="space-y-4 sm:space-y-5">
+        <div>
+          {{ form.username|attr:"placeholder:Usuario"|attr:"class:w-full p-3 sm:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm sm:text-base" }}
+          {% for error in form.username.errors %}
+            <p class="text-red-600 text-xs sm:text-sm mt-2">{{ error }}</p>
+          {% endfor %}
+        </div>
 
-        {{ form.email|attr:"placeholder:Correo electrónico"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+        <div>
+          {{ form.email|attr:"placeholder:Correo electrónico"|attr:"class:w-full p-3 sm:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm sm:text-base" }}
+          {% for error in form.email.errors %}
+            <p class="text-red-600 text-xs sm:text-sm mt-2">{{ error }}</p>
+          {% endfor %}
+        </div>
 
-        {{ form.telefono|attr:"placeholder:Teléfono"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
+        <div>
+          {{ form.telefono|attr:"placeholder:Teléfono"|attr:"class:w-full p-3 sm:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm sm:text-base" }}
+          {% for error in form.telefono.errors %}
+            <p class="text-red-600 text-xs sm:text-sm mt-2">{{ error }}</p>
+          {% endfor %}
+        </div>
 
-        {{ form.password|attr:"placeholder:Contraseña"|attr:"class:w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm" }}
-      </div>
+        <div>
+          {{ form.password|attr:"placeholder:Contraseña"|attr:"class:w-full p-3 sm:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm sm:text-base" }}
+          {% for error in form.password.errors %}
+            <p class="text-red-600 text-xs sm:text-sm mt-2">{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
 
       <button type="submit"
-        class="w-full bg-primary text-white py-2.5 rounded-md hover:bg-primaryLight transition font-medium text-sm">
+        class="w-full bg-primary text-white py-3 sm:py-3.5 rounded-lg hover:bg-primaryLight transition-all font-medium text-sm sm:text-base shadow-md hover:shadow-lg duration-300">
         Registrarme
       </button>
     </form>
 
-    <p class="text-center text-grayMedium mt-6 text-sm">
+    <p class="text-center text-grayMedium mt-6 text-sm sm:text-base">
       ¿Ya tienes cuenta?
-      <a href="{% url 'login_cliente' %}" class="text-primary font-medium hover:underline">Inicia sesión</a>
+      <a href="{% url 'login_cliente' %}" class="text-primary font-medium hover:underline transition-colors duration-200">
+        Inicia sesión
+      </a>
     </p>
   </div>
-
 
   {% include 'layouts/messages.html' %}
 </body>

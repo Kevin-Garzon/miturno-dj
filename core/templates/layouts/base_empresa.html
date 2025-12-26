@@ -4,24 +4,151 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Panel Barbería — MiTurno{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+    
+    <style>
+        .mobile-menu-button {
+            display: none;
+        }
+        
+        @media (max-width: 1023px) {
+            .desktop-nav {
+                display: none;
+            }
+            .mobile-menu-button {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .mobile-menu-button {
+                display: none;
+            }
+            .desktop-nav {
+                display: flex;
+            }
+        }
+
+        /* Sidebar styles */
+        #mobile-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease-in-out;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        #mobile-sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-item:hover {
+            color: #2563eb;
+            background: #f9fafb;
+            margin: 0 -20px;
+            padding: 14px 20px;
+        }
+
+        .sidebar-item.active {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-buttons {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .close-sidebar:hover {
+            color: #374151;
+            background: #f3f4f6;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 font-inter text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Navbar principal -->
+    <!-- Navbar -->
     <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center gap-3">
                 <img src="{% static 'img/logo.png' %}" alt="MiTurno" class="w-7 h-7">
                 <h1 class="text-lg font-semibold tracking-tight text-gray-900">MiTurno</h1>
             </div>
 
-            <!-- Navegación -->
-            <nav class="flex items-center gap-6 text-sm">
+            <!-- Navegación Desktop -->
+            <nav class="desktop-nav items-center gap-6 text-sm">
                 <a href="{% url 'dashboard_empresa' %}"
                     class="flex items-center gap-1 {% if request.resolver_match.url_name == 'dashboard_empresa' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
                     <i class="fa-solid fa-chart-line text-xs"></i> Dashboard
@@ -33,8 +160,8 @@
                 </a>
 
                 <a href="{% url 'configurar_disponibilidad' %}"
-                    class="text-gray-500 hover:text-primary transition text-sm">
-                    Disponibilidad
+                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'configurar_disponibilidad' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                    <i class="fa-solid fa-calendar-alt text-xs"></i> Disponibilidad
                 </a>
 
                 <a href="{% url 'listar_clientes' %}"
@@ -42,8 +169,7 @@
                     <i class="fa-solid fa-users text-xs"></i> Clientes
                 </a>
 
-                <a href="#"
-                    class="flex items-center gap-1 {% if request.resolver_match.url_name == 'citas' %}text-primary font-medium{% else %}text-gray-500 hover:text-primary{% endif %} transition">
+                <a href="{% url 'listar_citas' %}" class="flex items-center gap-1 {% if request.resolver_match.url_name == 'listar_citas' %}text-primary font-medium {% else %}text-gray-500 hover:text-primary{% endif %} transition">
                     <i class="fa-solid fa-calendar-check text-xs"></i> Citas
                 </a>
 
@@ -53,15 +179,72 @@
                 </a>
 
                 <a href="{% url 'logout' %}"
-                    class="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primaryLight transition">
+                    class="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primaryLight transition text-sm">
                     Cerrar sesión
                 </a>
             </nav>
+            
+            <!-- Botón Hamburguesa Mobile -->
+            <div class="mobile-menu-button">
+                <button id="menu-toggle" class="p-2 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
         </div>
     </header>
 
+    <!-- Overlay para cerrar sidebar -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar Mobile -->
+    <div id="mobile-sidebar">
+        <div class="sidebar-header">
+            <div class="flex items-center gap-2">
+                <img src="{% static 'img/logo.png' %}" alt="MiTurno Logo" class="w-8 h-8">
+                <h2 class="text-lg font-semibold text-primary">MiTurno Empresa</h2>
+            </div>
+            <button class="close-sidebar" id="close-sidebar">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-content">
+            <a href="{% url 'dashboard_empresa' %}" class="sidebar-item {% if request.resolver_match.url_name == 'dashboard_empresa' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'listar_servicios' %}" class="sidebar-item {% if request.resolver_match.url_name == 'listar_servicios' %}active{% endif %}">
+                <i class="fa-solid fa-scissors"></i>
+                Servicios
+            </a>
+            <a href="{% url 'configurar_disponibilidad' %}" class="sidebar-item {% if request.resolver_match.url_name == 'configurar_disponibilidad' %}active{% endif %}">
+                <i class="fa-solid fa-calendar-alt"></i>
+                Disponibilidad
+            </a>
+            <a href="{% url 'listar_clientes' %}" class="sidebar-item {% if request.resolver_match.url_name == 'listar_clientes' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i>
+                Clientes
+            </a>
+            <a href="{% url 'listar_citas' %}" class="sidebar-item {% if request.resolver_match.url_name == 'listar_citas' %}active{% endif %}">
+                <i class="fa-solid fa-calendar-check"></i>
+                Citas
+            </a>
+            <a href="{% url 'editar_empresa' %}" class="sidebar-item {% if request.resolver_match.url_name == 'editar_empresa' %}active{% endif %}">
+                <i class="fa-solid fa-gear"></i>
+                Configuración
+            </a>
+            
+            <div class="sidebar-buttons">
+                <a href="{% url 'logout' %}"
+                    class="inline-flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-md hover:bg-primaryLight transition font-medium text-center w-full">
+                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Contenido dinámico -->
-    <main class="flex-1 px-8 py-10 max-w-7xl mx-auto w-full">
+    <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-10 max-w-7xl mx-auto w-full">
         {% block content %}{% endblock %}
     </main>
 
@@ -71,6 +254,32 @@
     </footer>
 
     {% include 'layouts/messages.html' %}
-</body>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const closeSidebar = document.getElementById('close-sidebar');
+            const sidebar = document.getElementById('mobile-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebarFunc() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (menuToggle && closeSidebar && sidebar && overlay) {
+                menuToggle.addEventListener('click', openSidebar);
+                closeSidebar.addEventListener('click', closeSidebarFunc);
+                overlay.addEventListener('click', closeSidebarFunc);
+            }
+        });
+    </script>
+</body>
 </html>

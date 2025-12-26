@@ -32,12 +32,14 @@
             <div class="flex flex-col">
                 <label for="id_username" class="block text-sm font-semibold text-gray-800 mb-2">Usuario</label>
                 {{ form.username|add_class:"w-full border border-gray-300 rounded-md px-4 py-2.5 text-gray-800 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder-gray-400" }}
+                {% for error in form.username.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
             </div>
 
             <!-- Teléfono -->
             <div class="flex flex-col">
                 <label for="id_telefono" class="block text-sm font-semibold text-gray-800 mb-2">Teléfono</label>
                 {{ form.telefono|add_class:"w-full border border-gray-300 rounded-md px-4 py-2.5 text-gray-800 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder-gray-400" }}
+                {% for error in form.telefono.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
             </div>
 
             <!-- Correo (solo lectura) -->
@@ -45,6 +47,7 @@
                 <label class="block text-sm font-semibold text-gray-800 mb-2">Correo electrónico</label>
                 <p class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 text-gray-700 text-sm">
                     {{ request.user.email }}
+                    {% for error in form.email.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
                 </p>
             </div>
 

@@ -26,9 +26,10 @@
         {% if franjas %}
         <div class="flex flex-wrap gap-2">
             {% for f in franjas %}
-            <span class="px-4 py-2 border border-primary/40 text-primary rounded-md text-sm font-medium hover:bg-primary hover:text-white transition">
+            <a href="{% url 'resumen_cita' servicio.id dia %}?hora={{ f|urlencode }}"
+                class="px-4 py-2 border border-primary/40 text-primary text-sm font-medium rounded-md hover:bg-primary hover:text-white transition inline-flex items-center justify-center">
                 {{ f }}
-            </span>
+            </a>
             {% endfor %}
         </div>
         {% else %}

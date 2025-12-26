@@ -13,16 +13,19 @@ urlpatterns = [
     path('dashboard/cliente/', views.dashboard_cliente, name='dashboard_cliente'),
     path('dashboard/empresa/', views.dashboard_empresa, name='dashboard_empresa'),
 
-    # --- Empresa / Barbería ---
-    path('empresa/configuracion/', views.editar_empresa, name='editar_empresa'),
-
     # --- Cliente ---
     path('cliente/perfil/', views.perfil_cliente, name='perfil_cliente'),
     path('cliente/configuracion/', views.editar_cliente, name='editar_cliente'),
     path('cliente/servicios/<int:id>/', views.detalle_servicio, name='detalle_servicio'),
     path('cliente/servicios/<int:id>/disponibilidad/<str:dia>/', views.horarios_servicio, name='horarios_servicio'),
+    path('cliente/servicios/<int:id>/resumen/<str:dia>/', views.resumen_cita, name='resumen_cita'),
+    path('cliente/citas/confirmar/', views.confirmar_cita, name='confirmar_cita'),
+    path('cliente/mis-citas/', views.mis_citas, name='mis_citas'),
+    path('cliente/mis-citas/<int:id>/cancelar/', views.cancelar_cita, name='cancelar_cita'),
 
 
+    # --- Empresa / Barbería ---
+    path('empresa/configuracion/', views.editar_empresa, name='editar_empresa'),
 
     # --- Servicios ---
     path('empresa/servicios/', views.listar_servicios, name='listar_servicios'),
@@ -38,6 +41,10 @@ urlpatterns = [
     # --- Disponibilidad ---
     path('empresa/disponibilidad/', views.configurar_disponibilidad, name='configurar_disponibilidad'),
 
+    # --- Citas (panel empresa) ---
+    path('empresa/citas/', views.listar_citas_empresa, name='listar_citas'),
+    path('empresa/citas/<int:id>/confirmar/', views.confirmar_cita_empresa, name='confirmar_cita_empresa'),
+    path('empresa/citas/<int:id>/cancelar/', views.cancelar_cita_empresa, name='cancelar_cita_empresa'),
 
     # --- Cierre de sesión ---
     path('logout/', views.logout_view, name='logout'),

@@ -3,61 +3,117 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión — Cliente</title>
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
   <link href="{% static 'css/output.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
 
   <style>
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="tel"] {
-    width: 100%;
-    border: 1px solid #d1d5db; /* gray-300 */
-    border-radius: 6px;
-    padding: 0.6rem 0.75rem;
-    font-size: 0.875rem; /* text-sm */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-  input:focus {
-    outline: none;
-    border-color: #2563eb; /* primary */
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
-  }
+    /* Para móviles - prevenir zoom en iOS */
+    @media (max-width: 768px) {
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="tel"] {
+        font-size: 16px;
+        padding: 0.875rem 1rem;
+      }
+    }
 
-  label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151; /* gray-700 */
-  }
-</style>
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
 
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      display: none;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 28rem;
+      margin: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 0.5rem;
+      }
+    }
+
+    /* Mejorar legibilidad en móviles pequeños */
+    @media (max-width: 360px) {
+      .login-container {
+        margin: 0.25rem;
+      }
+      
+      .login-title {
+        font-size: 1.25rem;
+      }
+    }
+
+    /* Altura específica para dispositivos muy pequeños */
+    @media (max-height: 600px) {
+      body {
+        align-items: flex-start;
+        padding-top: 1rem;
+      }
+      
+      .login-container {
+        margin: 1rem auto;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen">
-  <div class="bg-white border border-gray-200 shadow-md p-8 rounded-md w-full max-w-md">
-    <h2 class="text-xl font-poppins font-semibold text-dark text-center mb-6">
+<body class="bg-graySoft font-inter flex items-center justify-center min-h-screen p-4">
+  <div class="login-container bg-white border border-gray-200 shadow-lg rounded-xl p-6 sm:p-8">
+    <h2 class="login-title text-xl sm:text-2xl font-poppins font-semibold text-dark text-center mb-6">
       <i class="fa-solid fa-user text-primary mr-2"></i> Iniciar sesión como Cliente
     </h2>
 
-    <form method="POST" class="space-y-4">
+    <form method="POST" class="space-y-4 sm:space-y-5">
       {% csrf_token %}
-      <input type="text" name="username" placeholder="Usuario"
-        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm">
-      <input type="password" name="password" placeholder="Contraseña"
-        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm">
+      <div>
+        <input type="text" name="username" placeholder="Usuario" 
+               class="w-full p-3 sm:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm sm:text-base">
+      </div>
+      
+      <div>
+        <input type="password" name="password" placeholder="Contraseña" 
+               class="w-full p-3 sm:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm sm:text-base">
+      </div>
 
       <button type="submit"
-        class="w-full bg-primary text-white py-2.5 rounded-md hover:bg-primaryLight transition font-medium text-sm">
+              class="w-full bg-primary text-white py-3 sm:py-3.5 rounded-lg hover:bg-primaryLight transition-all font-medium text-sm sm:text-base shadow-md hover:shadow-lg duration-300">
         Ingresar
       </button>
     </form>
 
-    <p class="text-center text-grayMedium mt-6 text-sm">
+    <p class="text-center text-grayMedium mt-6 text-sm sm:text-base">
       ¿No tienes cuenta?
-      <a href="{% url 'registro_cliente' %}" class="text-primary font-medium hover:underline">Regístrate aquí</a>
+      <a href="{% url 'registro_cliente' %}" class="text-primary font-medium hover:underline transition-colors duration-200">
+        Regístrate aquí
+      </a>
     </p>
   </div>
 
