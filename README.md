@@ -55,34 +55,34 @@ Antes de ejecutar el proyecto, es necesario contar con:
 
 ## Instalación local
 
-# 1. Clonar el proyecto desde el repositorio
+### 1. Clonar el proyecto desde el repositorio
 git clone <URL_DEL_REPOSITORIO>
 cd <RUTA_DEL_PROYECTO>
 
-# 2. Crear el entorno virtual
+### 2. Crear el entorno virtual
 python -m venv venv
 
-# 3. Activar el entorno virtual
+### 3. Activar el entorno virtual
 
-# Windows
+### Windows
 venv\Scripts\activate
-# Linux / macOS
+### Linux / macOS
 source venv/bin/activate
 
-# 4. Instalar dependencias Python
+### 4. Instalar dependencias Python
 pip install -r requirements.txt
 
-# 5. Instalar dependencias frontend (Tailwind)
+### 5. Instalar dependencias frontend (Tailwind)
 npm install
 
-# 6. Compilar Tailwind CSS (modo watch)
+### 6. Compilar Tailwind CSS (modo watch)
 .\node_modules\.bin\tailwindcss.cmd -i ./core/static/css/tailwind.css -o ./core/static/css/output.css --watch
 
-# 7. Aplicar migraciones (SQLite)
+### 7. Aplicar migraciones (SQLite)
 python manage.py migrate
 
-# 8. Crear superusuario (opcional)
+### 8. Crear superusuario (opcional)
 python manage.py createsuperuser
 
-# 9. Ejecutar el servidor Django
+### 9. Ejecutar el servidor Django
 python manage.py runserver
