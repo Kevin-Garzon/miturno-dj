@@ -818,3 +818,43 @@ def configurar_disponibilidad(request):
         return redirect('configurar_disponibilidad')
 
     return render(request, 'empresa/disponibilidad.html', {'dias': dias})
+
+@login_required
+@empresa_required
+def crear_cliente_admin(request):
+    if request.method == "POST":
+        nombre_usuario = request.POST.get("nombre_usuario")
+        correo = request.POST.get("correo")
+        telefono = request.POST.get("telefono")
+        password = request.POST.get("password")
+
+        # Validaciones
+        if not nombre_usuario or not correo or not password:
+            messages.error(request, "Por favor completa todos los campos obligatorios.")
+            return render(request, "empresa/clientes/crear_cliente.html")
+
+        if User.objects.filter(username=nombre_usuario).exists():
+            messages.error(request, "El nombre de usuario ya está registrado.")
+            return render(request, "empresa/clientes/crear_cliente.html")
+
+        if User.objects.filter(email=correo).exists():
+            messages.error(request, "El correo ya está registrado.")
+            return render(request, "empresa/clientes/crear_cliente.html")
+
+        # Crear usuario
+        user = User.objects.create_user(
+            username=nombre_usuario,
+            email=correo,
+            password=password
+        )
+        user.save()
+
+        # Crear cliente asociado
+        cliente = Cliente(user=user, telefono=telefono)
+        cliente.save()
+
+        messages.success(request, "Cliente creado correctamente.")
+        return redirect("listar_clientes")
+
+    # Renderizar el formulario
+    return render(request, "empresa/clientes/crear_cliente.html")

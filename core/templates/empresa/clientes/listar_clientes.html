@@ -5,12 +5,22 @@
 {% block content %}
 <main class="flex-1 px-8 py-10 max-w-7xl mx-auto">
     <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
-        <div>
-            <h1 class="text-2xl text-gray-900 font-medium mb-1">Gestión de clientes</h1>
-            <p class="text-gray-500 text-sm">Administra los clientes registrados en el sistema.</p>
-        </div>
-    </div>
+   <!-- Encabezado -->
+<!-- Encabezado -->
+        <div class="flex flex-wrap items-center justify-between mb-10">
+          <div class="flex flex-col">
+             <h1 class="text-2xl text-gray-900 font-medium mb-1">Gestión de clientes</h1>
+                 <p class="text-gray-500 text-sm">Administra los clientes registrados en el sistema.</p>
+             </div>
+
+         <a href="{% url 'crear_cliente_admin' %}"
+             class="inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-md transition text-sm font-medium shadow-sm focus:ring-2 focus:ring-blue-300"
+             style="background-color:#2563eb; border:1px solid #1e40af;">
+             <i class="fa-solid fa-plus"></i> Nuevo cliente
+             </a>
+         </div>
+
+
 
     {% if clientes %}
     <!-- Tabla de clientes -->

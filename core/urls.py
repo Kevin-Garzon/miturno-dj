@@ -35,6 +35,7 @@ urlpatterns = [
 
     # --- Clientes (panel empresa) ---
     path('empresa/clientes/', views.listar_clientes, name='listar_clientes'),
+    path('empresa/clientes/crear/', views.crear_cliente_admin, name='crear_cliente_admin'),
     path('empresa/clientes/<int:id>/editar/', views.editar_cliente_admin, name='editar_cliente_admin'),
     path('empresa/clientes/<int:id>/eliminar/', views.eliminar_cliente_admin, name='eliminar_cliente_admin'),
 
