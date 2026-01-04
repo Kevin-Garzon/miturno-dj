@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-z38opx1fj_#wi51h63y1=z4w+0*jelwmd4qzagqxw8%i82qgct
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "miturno.zeabur.app",
+]
 
 
 # Application definition
